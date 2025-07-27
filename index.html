@@ -3,207 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Library - Psikologi Gelap</title>
+    <title>Shadow Library | Lab Psikologi Gelap</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
-            --dark: #0f0f0f;
-            --purple: #8a2be2;
+            --dark: #121212;
+            --neon: #bd00ff;
             --gold: #ffd700;
-            --red: #ff2400;
+            --blood: #ff2400;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Courier New', monospace;
             background: var(--dark);
             color: #e0e0e0;
             margin: 0;
-            line-height: 1.6;
+            line-height: 1.8;
         }
-        header {
-            background: rgba(15, 15, 15, 0.9);
+        .typewriter {
+            border-right: 3px solid var(--neon);
+            white-space: nowrap;
+            overflow: hidden;
+            font-family: monospace;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--neon) }
+        }
+        .header {
+            background: rgba(20, 20, 20, 0.95);
             padding: 1rem;
+            border-bottom: 1px solid var(--neon);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--purple);
         }
         .logo {
             font-size: 1.8rem;
             font-weight: bold;
-            background: linear-gradient(90deg, var(--purple), var(--gold));
+            background: linear-gradient(90deg, var(--neon), var(--gold));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-        .ebook-container {
-            max-width: 800px;
+        .container {
+            max-width: 900px;
             margin: 2rem auto;
             padding: 1rem;
+        }
+        .generator-box {
             background: rgba(30, 30, 30, 0.8);
+            border: 1px solid var(--neon);
             border-radius: 8px;
-            border: 1px solid var(--purple);
-        }
-        .ebook-preview {
-            cursor: pointer;
-            transition: all 0.3s;
             padding: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
-        .ebook-preview:hover {
-            background: rgba(138, 43, 226, 0.1);
-        }
-        .ebook-title {
-            color: var(--gold);
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .ebook-content {
-            display: none;
-            padding: 1rem;
-            background: rgba(40, 40, 40, 0.9);
-            border-radius: 5px;
-            margin-top: 1rem;
-            border-left: 3px solid var(--red);
-        }
-        button {
-            background: var(--purple);
+        .btn {
+            background: var(--neon);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 1rem;
         }
-        button:hover {
-            opacity: 0.9;
+        .btn:hover {
+            background: var(--blood);
+            box-shadow: 0 0 10px rgba(255, 36, 0, 0.5);
         }
-        .ai-status {
-            font-style: italic;
-            color: #888;
-            margin-top: 1rem;
+        .reading-mode {
+            display: none;
+            background: rgba(10, 10, 10, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            overflow-y: scroll;
+            padding: 2rem;
+        }
+        .reading-content {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 2rem;
+            border-left: 5px solid var(--blood);
+        }
+        .close-reader {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gold);
+        }
+        .page-turn {
+            position: fixed;
+            bottom: 2rem;
+            width: 100%;
+            text-align: center;
+        }
+        .psycho-effect {
+            background: url('https://i.imgur.com/3YXn5Ea.png');
+            opacity: 0.03;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1001;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">Shadow Psychology</div>
+    <div class="header">
+        <div class="logo">SHADOW PSYCHOLOGY</div>
         <div>
-            <button id="refreshBtn">Refresh Konten</button>
-        </div>
-    </header>
-
-    <div class="ebook-container">
-        <div class="ebook-preview" onclick="toggleContent('dailyEbook')">
-            <div class="ebook-title" id="dailyTitle">Memikat Bawah Sadar</div>
-            <div class="ebook-desc" id="dailyDesc">
-                Teknik memanipulasi persepsi melalui stimulus subliminal...
-            </div>
-            <div class="ai-status">
-                🔄 AI terakhir update: <span id="lastUpdate">5 menit lalu</span>
-            </div>
-        </div>
-        <div class="ebook-content" id="dailyEbook">
-            <h3>Isi eBook Hari Ini:</h3>
-            <p id="ebookFullContent">Loading konten...</p>
-            <button onclick="downloadEbook()">Download PDF</button>
+            <button class="btn" id="newBookBtn">Generate New Book</button>
         </div>
     </div>
 
-    <div class="ebook-container">
-        <h3>Koleksi eBook Lain:</h3>
-        <div class="ebook-list" id="ebookList">
-            <!-- Daftar eBook akan diisi oleh JavaScript -->
+    <div class="container">
+        <div class="generator-box">
+            <h2>Today's Dark Psychology Book</h2>
+            <div id="bookTitle" class="typewriter" style="font-size: 1.5rem; color: var(--gold); margin-bottom: 1rem;"></div>
+            <div id="bookContent" style="min-height: 200px; border-top: 1px solid #333; padding-top: 1rem;"></div>
+            <div style="margin-top: 1rem;">
+                <button class="btn" id="downloadBtn" disabled>Download PDF</button>
+                <button class="btn" id="readBtn" disabled>Read Now</button>
+            </div>
+            <div id="aiStatus" style="margin-top: 1rem; font-style: italic; color: #666;"></div>
+        </div>
+    </div>
+
+    <div class="reading-mode" id="readingMode">
+        <div class="close-reader" onclick="closeReader()">✕</div>
+        <div class="psycho-effect"></div>
+        <div class="reading-content">
+            <h1 id="readTitle" style="color: var(--gold); text-align: center;"></h1>
+            <div id="readContent" style="margin-top: 2rem;"></div>
+        </div>
+        <div class="page-turn">
+            <button class="btn" onclick="closeReader()">Close Book</button>
         </div>
     </div>
 
     <script>
-        // Data eBook psikologi nyata
-        const ebooks = [
-            {
-                id: 1,
-                title: "48 Hukum Kekuasaan",
-                shortDesc: "Strategi manipulasi dari Robert Greene",
-                content: "Isi lengkap ebook 48 Hukum Kekuasaan...",
-                category: "Manipulasi"
-            },
-            {
-                id: 2,
-                title: "Seni Gaslighting",
-                shortDesc: "Teknik membuat orang meragukan realitas",
-                content: "Panduan lengkap gaslighting...",
-                category: "Psikologi Gelap"
-            },
-            {
-                id: 3,
-                title: "Pemrograman NLP",
-                shortDesc: "Kontrol pikiran dengan neurolinguistik",
-                content: "Teknik NLP untuk persuasi...",
-                category: "Persuasi"
-            }
+        // ========== AI WRITER SIMULATION ==========
+        const bookTitles = [
+            "Seni Gaslighting Modern",
+            "Pemrograman Bawah Sadar",
+            "Teknik Manipulasi NLP",
+            "Psikologi Predator Sosial",
+            "Dark Persuasion Handbook"
+        ];
+        
+        const bookContents = [
+            `Gaslighting adalah seni manipulasi psikologis yang membuat korban meragukan realitas mereka sendiri. Dalam ebook ini, Anda akan mempelajari:\n\n1. 7 Variasi Gaslighting Kontemporer\n2. Cara Membuat Target Mempertanyakan Ingatan Mereka\n3. Teknik "Reality Shifting" untuk Kontrol Penuh\n\n"Korbannya tidak akan pernah sadar mereka sedang dimanipulasi" - Dr. Nacht`,
+            `Neurolinguistic Programming (NLP) adalah senjata psikologis paling mematikan. Pelajari cara:\n\n• Memanfaatkan Pola Bahasa Hipnotik\n• Membaca Microexpression\n• Menanamkan Sugesti tanpa Perlawanan\n\n"Dalam 3 menit, Anda bisa mengubah pikiran seseorang" - Prof. Veiss`,
+            `Predator sosial tidak menggunakan kekerasan fisik. Mereka menggunakan:\n\n✓ Eksploitasi Trauma Masa Kecil\n✓ Trigger Emosional Spesifik\n✓ Pola Isolasi Sosial\n\nBuku ini akan mengungkap metode yang digunakan oleh psikopat terlatih.`,
+            `Dark Persuasion berbeda dari persuasi biasa. Ini adalah seni membuat seseorang:\n\n→ Percaya itu adalah ide mereka\n→ Merasa bertanggung jawab\n→ Menyangkal adanya manipulasi\n\nPelajari 12 pola bahasa yang bekerja di bawah radar kesadaran.`
         ];
 
-        // Fungsi untuk menampilkan/menyembunyikan konten
-        function toggleContent(id) {
-            const content = document.getElementById(id);
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        let currentContent = "";
+        let currentTitle = "";
+        const { jsPDF } = window.jspdf;
+
+        // Simulasi AI mengetik
+        function typeWriter(text, elementId, speed, callback) {
+            let i = 0;
+            const element = document.getElementById(elementId);
+            element.innerHTML = "";
+            element.style.animation = "typing 3.5s steps(40, end), blink-caret .75s step-end infinite";
             
-            // Jika konten daily ebook, generate isi
-            if(id === 'dailyEbook') {
-                generateDailyContent();
+            function typing() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typing, speed);
+                } else {
+                    element.style.animation = "none";
+                    if (callback) callback();
+                }
             }
+            typing();
         }
 
-        // Fungsi generate konten harian
-        function generateDailyContent() {
-            const titles = [
-                "Seni Manipulasi Emosi",
-                "Teknik Kontrol Pikiran",
-                "Pemrograman Bawah Sadar"
-            ];
-            const contents = [
-                "Isi lengkap teknik manipulasi emosi...",
-                "Panduan kontrol pikiran langkah demi langkah...",
-                "Cara memprogram pikiran bawah sadar orang lain..."
-            ];
+        // Generate buku baru
+        function generateNewBook() {
+            document.getElementById('downloadBtn').disabled = true;
+            document.getElementById('readBtn').disabled = true;
+            document.getElementById('aiStatus').textContent = "🔄 AI sedang menulis buku baru...";
             
-            const randomIndex = Math.floor(Math.random() * titles.length);
-            document.getElementById('dailyTitle').textContent = titles[randomIndex];
-            document.getElementById('dailyDesc').textContent = "Ebook hari ini membahas " + titles[randomIndex].toLowerCase();
-            document.getElementById('ebookFullContent').textContent = contents[randomIndex];
+            const randomTitle = bookTitles[Math.floor(Math.random() * bookTitles.length)];
+            const randomContent = bookContents[Math.floor(Math.random() * bookContents.length)];
             
-            // Update waktu
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-        }
-
-        // Fungsi download (simulasi)
-        function downloadEbook() {
-            alert("Download dimulai (simulasi)");
-        }
-
-        // Fungsi load ebook list
-        function loadEbookList() {
-            const ebookList = document.getElementById('ebookList');
+            currentTitle = randomTitle;
+            currentContent = randomContent;
             
-            ebooks.forEach(ebook => {
-                const ebookItem = document.createElement('div');
-                ebookItem.className = 'ebook-preview';
-                ebookItem.innerHTML = `
-                    <div class="ebook-title">${ebook.title}</div>
-                    <div class="ebook-desc">${ebook.shortDesc} | ${ebook.category}</div>
-                    <div class="ebook-content" id="ebook-${ebook.id}" style="display:none">
-                        <p>${ebook.content}</p>
-                        <button onclick="downloadEbook()">Download</button>
-                    </div>
-                `;
-                
-                ebookItem.onclick = () => toggleContent(`ebook-${ebook.id}`);
-                ebookList.appendChild(ebookItem);
+            // Animasi mengetik judul
+            typeWriter(randomTitle, 'bookTitle', 100, () => {
+                // Animasi mengetik konten
+                document.getElementById('bookContent').innerHTML = "<div id='typingContent'></div>";
+                typeWriter(randomContent, 'typingContent', 30, () => {
+                    document.getElementById('aiStatus').textContent = "✅ Buku siap dibaca!";
+                    document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('readBtn').disabled = false;
+                });
             });
         }
 
-        // Inisialisasi
-        document.getElementById('refreshBtn').onclick = generateDailyContent;
-        loadEbookList();
-        generateDailyContent();
+        // Download as PDF
+        function downloadPDF() {
+            const doc = new jsPDF();
+            doc.setFont("courier");
+            doc.text(currentTitle, 15, 15);
+            doc.text(currentContent.split('\n'), 15, 25);
+            doc.save(`shadow-psychology-${new Date().getTime()}.pdf`);
+        }
+
+        // Buka mode baca
+        function openReader() {
+            document.getElementById('readingMode').style.display = 'block';
+            document.getElementById('readTitle').textContent = currentTitle;
+            document.getElementById('readContent').innerHTML = currentContent.replace(/\n/g, '<br>');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Tutup mode baca
+        function closeReader() {
+            document.getElementById('readingMode').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        document.getElementById('newBookBtn').addEventListener('click', generateNewBook);
+        document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
+        document.getElementById('readBtn').addEventListener('click', openReader);
+
+        // Generate buku pertama saat load
+        window.onload = generateNewBook;
     </script>
 </body>
 </html>
