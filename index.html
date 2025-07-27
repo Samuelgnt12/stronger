@@ -3,199 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PowerArm - Pelatihan Lengan untuk Panco Profesional</title>
+    <title>PowerArm Pro - Personalized Arm Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #FF5E14; /* Orange */
+            --secondary: #2F4858; /* Dark blue */
+            --accent: #00C896; /* Teal */
+            --light: #F6F7FB;
+            --dark: #2A2D34;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
             line-height: 1.6;
-            color: #333;
+        }
+        
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
         
         header {
-            background-color: #2c3e50;
+            background: linear-gradient(135deg, var(--secondary), var(--dark));
             color: white;
-            padding: 20px;
+            padding: 2rem 0;
             text-align: center;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
         
-        .level-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .profile-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
         
-        .exercise {
-            display: flex;
-            margin-bottom: 30px;
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: #e05512;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 94, 20, 0.3);
+        }
+        
+        .training-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .training-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .training-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card-header {
+            background: var(--secondary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-body ul {
+            list-style: none;
+        }
+        
+        .card-body li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .card-body li:before {
+            content: "✓";
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            margin: 1rem 0;
+            border-radius: 10px;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .intensity-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
             align-items: center;
         }
         
-        .exercise-desc {
-            flex: 2;
-            padding-right: 20px;
-        }
-        
-        .exercise-img {
-            flex: 1;
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
             text-align: center;
         }
         
-        img {
-            max-width: 100%;
+        .intensity-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .intensity-btn {
+            padding: 12px 20px;
             border-radius: 8px;
-        }
-        
-        button {
-            background-color: #e74c3c;
-            color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+            transition: all 0.3s;
         }
         
-        button:hover {
-            background-color: #c0392b;
+        .beginner {
+            background: #4CAF50;
+            color: white;
         }
         
-        .level-title {
-            color: #e74c3c;
-            border-bottom: 2px solid #e74c3c;
-            padding-bottom: 10px;
+        .intermediate {
+            background: #FFC107;
+            color: var(--dark);
+        }
+        
+        .advanced {
+            background: #F44336;
+            color: white;
+        }
+        
+        .exercise-section {
+            margin: 3rem 0;
+        }
+        
+        .exercise-tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            color: var(--dark);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+        }
+        
+        .tab-btn.active:after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .exercise-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .training-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .intensity-options {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>POWERARM</h1>
-        <p>Program Pembesaran Lengan & Penguatan Tangan Khusus Panco</p>
+        <div class="container">
+            <h1>POWERARM PRO</h1>
+            <p>Program Personal Pembesaran Lengan & Kekuatan Panco</p>
+        </div>
     </header>
     
-    <section class="level-section">
-        <h2 class="level-title">LEVEL PEMULA: PERBAIKI LENGAN KURUS</h2>
+    <div class="container">
+        <!-- Profile Section -->
+        <section class="profile-section">
+            <h2>Profil Anda</h2>
+            <p>Isi data untuk rekomendasi program personal</p>
+            
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="weight">Berat Badan (kg)</label>
+                    <input type="number" id="weight" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="height">Tinggi Badan (cm)</label>
+                    <input type="number" id="height" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Usia</label>
+                    <input type="number" id="age" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="experience">Level Pengalaman</label>
+                    <select id="experience" required>
+                        <option value="">Pilih level</option>
+                        <option value="beginner">Pemula (0-6 bulan)</option>
+                        <option value="intermediate">Menengah (6 bulan - 2 tahun)</option>
+                        <option value="advanced">Lanjutan (2+ tahun)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn">Generate Program</button>
+            </form>
+        </section>
         
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>1. Dumbell Curl Dasar</h3>
-                <p>Latihan dasar untuk membangun massa otot biceps.</p>
-                <ul>
-                    <li>3 set x 10-12 repetisi</li>
-                    <li>Istirahat 60 detik antar set</li>
-                    <li>Gunakan beban yang bisa dikontrol</li>
-                </ul>
-                <button onclick="speak('Latihan pertama, Dumbell Curl Dasar. Pegang dumbell dengan tangan terbuka, angkat secara perlahan dengan mengkontraksikan biceps. Tahan di posisi atas selama 1 detik, lalu turunkan perlahan. Lakukan 3 set dengan 10 sampai 12 repetisi. Istirahat 60 detik antar set.')">Dengar Panduan (TTS)</button>
+        <!-- Training Options (hidden until profile submitted) -->
+        <section id="trainingOptions" style="display: none;">
+            <h2>Pilih Jenis Latihan</h2>
+            <p>Pilih jenis latihan yang sesuai dengan fasilitas yang Anda miliki</p>
+            
+            <div class="training-options">
+                <div class="training-card">
+                    <div class="card-header">
+                        <h3>🏠 Latihan di Rumah (Dumbell)</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Hanya perlu 2 dumbell</li>
+                            <li>Program 30 hari</li>
+                            <li>Fokus pada biceps & triceps</li>
+                            <li>Video panduan AI</li>
+                            <li>Text-to-speech guide</li>
+                        </ul>
+                        <button class="btn" onclick="selectTraining('home_dumbell')">Pilih Ini</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <div class="card-header">
+                        <h3>🏋️ Latihan di Gym</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Menggunakan peralatan gym</li>
+                            <li>Program intensif 4 minggu</li>
+                            <li>Latihan compound & isolasi</li>
+                            <li>Video demonstrasi profesional</li>
+                            <li>Progress tracker</li>
+                        </ul>
+                        <button class="btn" onclick="selectTraining('gym')">Pilih Ini</button>
+                    </div>
+                </div>
+                
+                <div class="training-card">
+                    <div class="card-header">
+                        <h3>🧘 Latihan di Rumah (Tanpa Alat)</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li>Tidak perlu peralatan</li>
+                            <li>Menggunakan berat badan</li>
+                            <li>Fokus pada ketahanan</li>
+                            <li>AI-generated movements</li>
+                            <li>Adaptif untuk pemula</li>
+                        </ul>
+                        <button class="btn" onclick="selectTraining('home_no_equipment')">Pilih Ini</button>
+                    </div>
+                </div>
             </div>
-            <div class="exercise-img">
-                <img src="dumbell_curl.jpg" alt="Ilustrasi Dumbell Curl">
+        </section>
+        
+        <!-- Intensity Modal -->
+        <div class="intensity-modal" id="intensityModal">
+            <div class="modal-content">
+                <h2>Pilih Intensitas Latihan</h2>
+                <p>Kami merekomendasikan intensitas <span id="recommendedIntensity">Menengah</span> berdasarkan profil Anda</p>
+                
+                <div class="video-container">
+                    <!-- AI generated video placeholder -->
+                    <iframe src="https://www.youtube.com/embed/EXAMPLE" allowfullscreen></iframe>
+                </div>
+                
+                <div class="intensity-options">
+                    <button class="intensity-btn beginner" onclick="setIntensity('beginner')">Pemula</button>
+                    <button class="intensity-btn intermediate" onclick="setIntensity('intermediate')">Menengah</button>
+                    <button class="intensity-btn advanced" onclick="setIntensity('advanced')">Ekstrim</button>
+                </div>
+                
+                <p>Anda bisa mengubah intensitas kapan saja</p>
+                <button class="btn" onclick="startTraining()">Mulai Latihan</button>
             </div>
         </div>
         
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>2. Grip Squeeze</h3>
-                <p>Menguatkan cengkeraman tangan dengan hand gripper.</p>
-                <ul>
-                    <li>5 set x 5 repetisi (tahan 5 detik)</li>
-                    <li>Istirahat 45 detik antar set</li>
-                </ul>
-                <button onclick="speak('Latihan kedua, Grip Squeeze. Gunakan hand gripper dengan resistensi sedang. Tekan gripper perlahan sampai menutup sempurna, tahan selama 5 detik, lalu lepaskan dengan kontrol. Lakukan 5 set dengan 5 repetisi. Istirahat 45 detik antar set.')">Dengar Panduan (TTS)</button>
+        <!-- Exercise Section (hidden until intensity selected) -->
+        <section class="exercise-section" id="exerciseSection" style="display: none;">
+            <h2>Program Latihan Anda</h2>
+            
+            <div class="exercise-tabs">
+                <button class="tab-btn active" onclick="openTab('week1')">Minggu 1</button>
+                <button class="tab-btn" onclick="openTab('week2')">Minggu 2</button>
+                <button class="tab-btn" onclick="openTab('week3')">Minggu 3</button>
+                <button class="tab-btn" onclick="openTab('week4')">Minggu 4</button>
             </div>
-            <div class="exercise-img">
-                <img src="grip_squeeze.jpg" alt="Ilustrasi Grip Squeeze">
+            
+            <div id="week1" class="tab-content active">
+                <div class="exercise-card">
+                    <h3>1. Dumbell Bicep Curl (AI Video)</h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/AI_BICEP_CURL" allowfullscreen></iframe>
+                    </div>
+                    <p>3 set x 12 repetisi | Istirahat 60 detik</p>
+                    <button class="btn" onclick="speakExercise('Dumbell Bicep Curl', 'Pegang dumbell dengan tangan terbuka, angkat secara perlahan dengan mengkontraksikan biceps. Tahan di posisi atas selama 1 detik, lalu turunkan perlahan. Lakukan 12 repetisi untuk 3 set. Istirahat 60 detik antar set.')">Panduan Audio</button>
+                </div>
+                
+                <div class="exercise-card">
+                    <h3>2. Hammer Curl (AI Video)</h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/AI_HAMMER_CURL" allowfullscreen></iframe>
+                    </div>
+                    <p>3 set x 10 repetisi | Istirahat 45 detik</p>
+                    <button class="btn" onclick="speakExercise('Hammer Curl', 'Pegang dumbell dengan posisi netral seperti memegang palu. Angkat satu dumbell sampai setinggi bahu sambil menjaga siku tetap di tempat. Turunkan dengan kontrol. Lakukan 10 repetisi untuk 3 set. Istirahat 45 detik antar set.')">Panduan Audio</button>
+                </div>
             </div>
-        </div>
-    </section>
-    
-    <section class="level-section">
-        <h2 class="level-title">LEVEL MENENGAH: 5 5 5 PROGRAM</h2>
-        
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>1. 5x5 Weighted Chin-up</h3>
-                <p>Latihan compound untuk kekuatan lengan dan punggung.</p>
-                <ul>
-                    <li>5 set x 5 repetisi</li>
-                    <li>Tambahkan beban jika perlu</li>
-                    <li>Istirahat 90 detik antar set</li>
-                </ul>
-                <button onclick="speak('Latihan pertama level menengah, 5x5 Weighted Chin-up. Gunakan sabuk pemberat jika sudah mampu. Tarik tubuh sampai dagu melewati bar, tahan 1 detik di atas, lalu turunkan dengan kontrol. Lakukan 5 set dengan 5 repetisi. Istirahat 90 detik antar set.')">Dengar Panduan (TTS)</button>
+            
+            <div id="week2" class="tab-content">
+                <!-- Week 2 content would be loaded here -->
             </div>
-            <div class="exercise-img">
-                <img src="weighted_chinup.jpg" alt="Ilustrasi Weighted Chin-up">
-            </div>
-        </div>
-        
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>2. 5x5 Wrist Roller</h3>
-                <p>Membangun kekuatan lengan bawah dan cengkeraman.</p>
-                <ul>
-                    <li>5 set x 5 gulungan penuh</li>
-                    <li>Gunakan beban progresif</li>
-                </ul>
-                <button onclick="speak('Latihan kedua, 5x5 Wrist Roller. Gulung tali dengan menggerakkan pergelangan tangan sampai beban mencapai atas, lalu turunkan dengan kontrol. Lakukan 5 gulungan penuh sebagai 1 repetisi. Total 5 set. Tingkatkan beban secara bertahap.')">Dengar Panduan (TTS)</button>
-            </div>
-            <div class="exercise-img">
-                <img src="wrist_roller.jpg" alt="Ilustrasi Wrist Roller">
-            </div>
-        </div>
-    </section>
-    
-    <section class="level-section">
-        <h2 class="level-title">LEVEL LANJUTAN: PEMBESARAN LENGAN SUPER</h2>
-        
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>1. One-Arm Deadhang dengan Beban</h3>
-                <p>Latihan ekstrim untuk kekuatan cengkeraman dan lengan.</p>
-                <ul>
-                    <li>5 set x 5-10 detik tahan</li>
-                    <li>Gunakan sabuk pemberat</li>
-                </ul>
-                <button onclick="speak('Latihan level lanjutan pertama, One-Arm Deadhang dengan Beban. Gantung dengan satu tangan pada pull-up bar, tambahkan beban jika mampu. Pertahankan posisi selama 5 sampai 10 detik. Lakukan 5 set. Gunakan sabuk pemberat untuk meningkatkan intensitas.')">Dengar Panduan (TTS)</button>
-            </div>
-            <div class="exercise-img">
-                <img src="one_arm_hang.jpg" alt="Ilustrasi One-Arm Deadhang">
-            </div>
-        </div>
-        
-        <div class="exercise">
-            <div class="exercise-desc">
-                <h3>2. Plate Pinch Challenge</h3>
-                <p>Latihan khusus untuk kekuatan jari dan cengkeraman.</p>
-                <ul>
-                    <li>5 set x 5-10 detik tahan</li>
-                    <li>Gunakan dua plate barbel yang disatukan</li>
-                </ul>
-                <button onclick="speak('Latihan kedua level lanjutan, Plate Pinch Challenge. Jepit dua plate barbel dengan berat sama menggunakan jari-jari saja. Angkat dari tanah dan tahan selama 5 sampai 10 detik. Lakukan 5 set. Tambahkan berat plate secara bertahap.')">Dengar Panduan (TTS)</button>
-            </div>
-            <div class="exercise-img">
-                <img src="plate_pinch.jpg" alt="Ilustrasi Plate Pinch">
-            </div>
-        </div>
-    </section>
+            
+            <!-- Weeks 3-4 would follow same pattern -->
+        </section>
+    </div>
     
     <script>
-        function speak(text) {
-            // Text-to-speech functionality
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID'; // Set bahasa Indonesia
-                utterance.rate = 0.9; // Kecepatan bicara
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('Browser Anda tidak mendukung text-to-speech. Silakan gunakan browser modern seperti Chrome atau Edge.');
+        // Profile form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const age = document.getElementById('age').value;
+            const experience = document.getElementById('experience').value;
+            
+            // Store profile data
+            localStorage.setItem('userProfile', JSON.stringify({
+                weight, height, age, experience
+            }));
+            
+            // Show training options
+            document.getElementById('trainingOptions').style.display = 'block';
+            
+            // Scroll to options
+            document.getElementById('trainingOptions').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+        
+        // Training type selection
+        function selectTraining(type) {
+            localStorage.setItem('trainingType', type);
+            
+            // Show intensity modal
+            document.getElementById('intensityModal').style.display = 'flex';
+            
+            // Set recommended intensity based on profile
+            const profile = JSON.parse(localStorage.getItem('userProfile'));
+            let recommended = 'intermediate';
+            
+            if (profile.experience === 'beginner') {
+                recommended = 'beginner';
+            } else if (profile.experience === 'advanced') {
+                recommended = 'advanced';
             }
+            
+            document.getElementById('recommendedIntensity').textContent = 
+                recommended === 'beginner' ? 'Pemula' : 
+                recommended === 'intermediate' ? 'Menengah' : 'Ekstrim';
+        }
+        
+        // Set intensity level
+        function setIntensity(level) {
+            localStorage.setItem('intensityLevel', level);
+            
+            // Highlight selected button
+            document.querySelectorAll('.intensity-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Start training program
+        function startTraining() {
+            document.getElementById('intensityModal').style.display = 'none';
+            document.getElementById('exerciseSection').style.display = 'block';
+            
+            // Load appropriate exercises based on selections
+            loadExercises();
+            
+            // Scroll to exercises
+            document.getElementById('exerciseSection').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+        
+        // Tab functionality
+        function openTab(tabName) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab and activate button
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Text-to-speech function
+        function speakExercise(name, instructions) {
+            if ('speechSynthesis' in window) {
+                const speech = new SpeechSynthesisUtterance();
+                speech.text = `${name}. ${instructions}`;
+                speech.lang = 'id-ID';
+                speech.rate = 0.9;
+                window.speechSynthesis.speak(speech);
+            } else {
+                alert('Browser Anda tidak mendukung text-to-speech. Silakan gunakan Chrome atau Edge.');
+            }
+        }
+        
+        // Load appropriate exercises
+        function loadExercises() {
+            // This would be expanded to load different exercises based on:
+            // - trainingType (home_dumbell, gym, home_no_equipment)
+            // - intensityLevel (beginner, intermediate, advanced)
+            // - user profile data
+            
+            // In a real implementation, this would likely fetch from an API
+            // or select from predefined exercise routines
         }
     </script>
 </body>
