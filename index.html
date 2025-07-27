@@ -3,253 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Library | Lab Psikologi Gelap</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Shadow Library - Baca Psikologi Gelap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.1/turn.min.css">
     <style>
         :root {
-            --dark: #121212;
-            --neon: #bd00ff;
-            --gold: #ffd700;
-            --blood: #ff2400;
+            --dark-bg: #1a1a1a;
+            --dark-text: #e0e0e0;
+            --dark-accent: #8a2be2;
+            --light-bg: #f5f5f5;
+            --light-text: #333;
+            --light-accent: #6a0dad;
         }
+        
         body {
-            font-family: 'Courier New', monospace;
-            background: var(--dark);
-            color: #e0e0e0;
+            font-family: 'Georgia', serif;
             margin: 0;
-            line-height: 1.8;
-        }
-        .typewriter {
-            border-right: 3px solid var(--neon);
-            white-space: nowrap;
-            overflow: hidden;
-            font-family: monospace;
-        }
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: var(--neon) }
-        }
-        .header {
-            background: rgba(20, 20, 20, 0.95);
-            padding: 1rem;
-            border-bottom: 1px solid var(--neon);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            background: linear-gradient(90deg, var(--neon), var(--gold));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 1rem;
-        }
-        .generator-box {
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid var(--neon);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .btn {
-            background: var(--neon);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            overflow-x: hidden;
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
             transition: all 0.3s;
-            margin-right: 1rem;
         }
-        .btn:hover {
-            background: var(--blood);
-            box-shadow: 0 0 10px rgba(255, 36, 0, 0.5);
+        
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--light-text);
         }
-        .reading-mode {
-            display: none;
-            background: rgba(10, 10, 10, 0.9);
-            position: fixed;
-            top: 0;
-            left: 0;
+        
+        #book-container {
+            width: 90vw;
+            height: 80vh;
+            margin: 2rem auto;
+            position: relative;
+        }
+        
+        #book {
             width: 100%;
             height: 100%;
-            z-index: 1000;
-            overflow-y: scroll;
-            padding: 2rem;
         }
-        .reading-content {
-            max-width: 700px;
-            margin: 0 auto;
-            background: rgba(20, 20, 20, 0.9);
+        
+        .page {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
             padding: 2rem;
-            border-left: 5px solid var(--blood);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            overflow-y: auto;
         }
-        .close-reader {
+        
+        .light-mode .page {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+        
+        .book-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .control-btn {
+            background: var(--dark-accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .light-mode .control-btn {
+            background: var(--light-accent);
+        }
+        
+        .control-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .theme-toggle {
             position: fixed;
             top: 1rem;
             right: 1rem;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--gold);
+            z-index: 1000;
         }
-        .page-turn {
-            position: fixed;
-            bottom: 2rem;
-            width: 100%;
-            text-align: center;
+        
+        h1, h2, h3 {
+            color: var(--dark-accent);
         }
-        .psycho-effect {
-            background: url('https://i.imgur.com/3YXn5Ea.png');
-            opacity: 0.03;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1001;
+        
+        .light-mode h1, 
+        .light-mode h2, 
+        .light-mode h3 {
+            color: var(--light-accent);
+        }
+        
+        /* Efek kertas buku */
+        .page {
+            background-image: linear-gradient(
+                rgba(255,255,255,0.03) 1px, 
+                transparent 1px
+            );
+            background-size: 100% 1.5em;
+            line-height: 1.5em;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">SHADOW PSYCHOLOGY</div>
-        <div>
-            <button class="btn" id="newBookBtn">Generate New Book</button>
+    <button class="theme-toggle control-btn" onclick="toggleTheme()">☀️ Mode Terang</button>
+    
+    <div id="book-container">
+        <div id="book">
+            <!-- Halaman akan diisi oleh JavaScript -->
         </div>
     </div>
-
-    <div class="container">
-        <div class="generator-box">
-            <h2>Today's Dark Psychology Book</h2>
-            <div id="bookTitle" class="typewriter" style="font-size: 1.5rem; color: var(--gold); margin-bottom: 1rem;"></div>
-            <div id="bookContent" style="min-height: 200px; border-top: 1px solid #333; padding-top: 1rem;"></div>
-            <div style="margin-top: 1rem;">
-                <button class="btn" id="downloadBtn" disabled>Download PDF</button>
-                <button class="btn" id="readBtn" disabled>Read Now</button>
-            </div>
-            <div id="aiStatus" style="margin-top: 1rem; font-style: italic; color: #666;"></div>
-        </div>
+    
+    <div class="book-controls">
+        <button class="control-btn" onclick="flipPrev()">← Sebelumnya</button>
+        <span id="page-info">Halaman 1 dari 5</span>
+        <button class="control-btn" onclick="flipNext()">Selanjutnya →</button>
     </div>
 
-    <div class="reading-mode" id="readingMode">
-        <div class="close-reader" onclick="closeReader()">✕</div>
-        <div class="psycho-effect"></div>
-        <div class="reading-content">
-            <h1 id="readTitle" style="color: var(--gold); text-align: center;"></h1>
-            <div id="readContent" style="margin-top: 2rem;"></div>
-        </div>
-        <div class="page-turn">
-            <button class="btn" onclick="closeReader()">Close Book</button>
-        </div>
-    </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.1/turn.min.js"></script>
     <script>
-        // ========== AI WRITER SIMULATION ==========
-        const bookTitles = [
-            "Seni Gaslighting Modern",
-            "Pemrograman Bawah Sadar",
-            "Teknik Manipulasi NLP",
-            "Psikologi Predator Sosial",
-            "Dark Persuasion Handbook"
+        // Konten eBook psikologi gelap
+        const bookContent = [
+            {
+                title: "Seni Manipulasi Bawah Sadar",
+                content: `<h1>Bab 1: Pengantar</h1>
+                <p>Manipulasi bawah sadar adalah seni mengendalikan persepsi seseorang tanpa mereka sadari...</p>
+                <p>Teknik ini banyak digunakan dalam:</p>
+                <ul>
+                    <li>Pemasaran subliminal</li>
+                    <li>Politik</li>
+                    <li>Hubungan interpersonal</li>
+                </ul>`
+            },
+            {
+                title: "Teknik Gaslighting",
+                content: `<h2>Gaslighting Modern</h2>
+                <p>Gaslighting adalah teknik membuat korban meragukan realitas mereka sendiri...</p>
+                <p>Contoh pola gaslighting:</p>
+                <ol>
+                    <li>"Itu tidak pernah terjadi"</li>
+                    <li>"Kamu terlalu sensitif"</li>
+                    <li>"Kamu salah ingat"</li>
+                </ol>`
+            },
+            {
+                title: "Pemrograman NLP",
+                content: `<h2>Neuro-Linguistic Programming</h2>
+                <p>NLP memanfaatkan pola bahasa untuk mempengaruhi pikiran bawah sadar...</p>
+                <p><strong>Contoh pola:</strong> "Bukan berarti kamu <em>harus</em> setuju, tapi bukankah menarik ketika..."</p>`
+            }
         ];
         
-        const bookContents = [
-            `Gaslighting adalah seni manipulasi psikologis yang membuat korban meragukan realitas mereka sendiri. Dalam ebook ini, Anda akan mempelajari:\n\n1. 7 Variasi Gaslighting Kontemporer\n2. Cara Membuat Target Mempertanyakan Ingatan Mereka\n3. Teknik "Reality Shifting" untuk Kontrol Penuh\n\n"Korbannya tidak akan pernah sadar mereka sedang dimanipulasi" - Dr. Nacht`,
-            `Neurolinguistic Programming (NLP) adalah senjata psikologis paling mematikan. Pelajari cara:\n\n• Memanfaatkan Pola Bahasa Hipnotik\n• Membaca Microexpression\n• Menanamkan Sugesti tanpa Perlawanan\n\n"Dalam 3 menit, Anda bisa mengubah pikiran seseorang" - Prof. Veiss`,
-            `Predator sosial tidak menggunakan kekerasan fisik. Mereka menggunakan:\n\n✓ Eksploitasi Trauma Masa Kecil\n✓ Trigger Emosional Spesifik\n✓ Pola Isolasi Sosial\n\nBuku ini akan mengungkap metode yang digunakan oleh psikopat terlatih.`,
-            `Dark Persuasion berbeda dari persuasi biasa. Ini adalah seni membuat seseorang:\n\n→ Percaya itu adalah ide mereka\n→ Merasa bertanggung jawab\n→ Menyangkal adanya manipulasi\n\nPelajari 12 pola bahasa yang bekerja di bawah radar kesadaran.`
-        ];
-
-        let currentContent = "";
-        let currentTitle = "";
-        const { jsPDF } = window.jspdf;
-
-        // Simulasi AI mengetik
-        function typeWriter(text, elementId, speed, callback) {
-            let i = 0;
-            const element = document.getElementById(elementId);
-            element.innerHTML = "";
-            element.style.animation = "typing 3.5s steps(40, end), blink-caret .75s step-end infinite";
-            
-            function typing() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(typing, speed);
-                } else {
-                    element.style.animation = "none";
-                    if (callback) callback();
-                }
-            }
-            typing();
-        }
-
-        // Generate buku baru
-        function generateNewBook() {
-            document.getElementById('downloadBtn').disabled = true;
-            document.getElementById('readBtn').disabled = true;
-            document.getElementById('aiStatus').textContent = "🔄 AI sedang menulis buku baru...";
-            
-            const randomTitle = bookTitles[Math.floor(Math.random() * bookTitles.length)];
-            const randomContent = bookContents[Math.floor(Math.random() * bookContents.length)];
-            
-            currentTitle = randomTitle;
-            currentContent = randomContent;
-            
-            // Animasi mengetik judul
-            typeWriter(randomTitle, 'bookTitle', 100, () => {
-                // Animasi mengetik konten
-                document.getElementById('bookContent').innerHTML = "<div id='typingContent'></div>";
-                typeWriter(randomContent, 'typingContent', 30, () => {
-                    document.getElementById('aiStatus').textContent = "✅ Buku siap dibaca!";
-                    document.getElementById('downloadBtn').disabled = false;
-                    document.getElementById('readBtn').disabled = false;
-                });
+        // Inisialisasi buku
+        function initBook() {
+            $('#book').turn({
+                width: 800,
+                height: 600,
+                autoCenter: true,
+                display: 'single'
             });
+            
+            // Tambahkan halaman
+            bookContent.forEach((page, index) => {
+                const pageNumber = index * 2 + 1;
+                $('#book').turn('addPage', $(`
+                    <div class="page">
+                        <h1>${page.title}</h1>
+                        ${page.content}
+                    </div>
+                `), pageNumber);
+                
+                // Halaman kosong untuk flip
+                $('#book').turn('addPage', $('<div class="page"></div>'), pageNumber + 1);
+            });
+            
+            updatePageInfo();
         }
-
-        // Download as PDF
-        function downloadPDF() {
-            const doc = new jsPDF();
-            doc.setFont("courier");
-            doc.text(currentTitle, 15, 15);
-            doc.text(currentContent.split('\n'), 15, 25);
-            doc.save(`shadow-psychology-${new Date().getTime()}.pdf`);
+        
+        // Navigasi halaman
+        function flipNext() {
+            $('#book').turn('next');
+            updatePageInfo();
         }
-
-        // Buka mode baca
-        function openReader() {
-            document.getElementById('readingMode').style.display = 'block';
-            document.getElementById('readTitle').textContent = currentTitle;
-            document.getElementById('readContent').innerHTML = currentContent.replace(/\n/g, '<br>');
-            document.body.style.overflow = 'hidden';
+        
+        function flipPrev() {
+            $('#book').turn('previous');
+            updatePageInfo();
         }
-
-        // Tutup mode baca
-        function closeReader() {
-            document.getElementById('readingMode').style.display = 'none';
-            document.body.style.overflow = 'auto';
+        
+        function updatePageInfo() {
+            const total = $('#book').turn('pages');
+            const current = $('#book').turn('page');
+            $('#page-info').text(`Halaman ${current} dari ${total}`);
         }
-
-        // Event listeners
-        document.getElementById('newBookBtn').addEventListener('click', generateNewBook);
-        document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
-        document.getElementById('readBtn').addEventListener('click', openReader);
-
-        // Generate buku pertama saat load
-        window.onload = generateNewBook;
+        
+        // Toggle tema
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('light-mode')) {
+                btn.textContent = '🌙 Mode Gelap';
+            } else {
+                btn.textContent = '☀️ Mode Terang';
+            }
+        }
+        
+        // Init saat halaman load
+        $(window).on('load', initBook);
     </script>
 </body>
 </html>
