@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS | Lab Psikologi Gelap</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Montserrat:wght@400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         :root {
             --darkness: #0a0a0a;
@@ -27,6 +28,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            animation: fadeInDown 0.8s;
         }
         .logo {
             font-family: 'Libre Baskerville', serif;
@@ -36,6 +42,12 @@
             background-clip: text;
             color: transparent;
             text-shadow: 0 0 10px rgba(189, 0, 255, 0.3);
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        .logo:hover {
+            transform: skewX(-10deg);
+            text-shadow: 0 0 20px rgba(189, 0, 255, 0.6);
         }
         .nav-links a {
             color: #ccc;
@@ -43,6 +55,7 @@
             text-decoration: none;
             transition: 0.3s;
             position: relative;
+            font-weight: 500;
         }
         .nav-links a:hover {
             color: var(--neon-purple);
@@ -60,9 +73,23 @@
         .nav-links a:hover::after {
             width: 100%;
         }
+        .login-btn {
+            background: transparent;
+            color: var(--gold-touch);
+            border: 1px solid var(--gold-touch);
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.4s;
+            font-weight: 600;
+        }
+        .login-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
         .main-container {
             max-width: 1200px;
-            margin: 2rem auto;
+            margin: 8rem auto 3rem;
             padding: 0 2rem;
         }
         .daily-ebook {
@@ -72,15 +99,25 @@
             padding: 2rem;
             box-shadow: 0 0 20px rgba(189, 0, 255, 0.2);
             transition: 0.5s;
+            animation: pulse 2s infinite alternate;
         }
         .daily-ebook:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 30px rgba(189, 0, 255, 0.4);
+            animation: none;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(189, 0, 255, 0.2); }
+            100% { box-shadow: 0 0 30px rgba(189, 0, 255, 0.4); }
         }
         .ebook-title {
             font-size: 1.8rem;
             color: var(--gold-touch);
             margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--gold-touch), #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         .ebook-desc {
             line-height: 1.6;
@@ -95,6 +132,26 @@
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+        .download-btn:hover::before {
+            left: 100%;
         }
         .download-btn:hover {
             transform: scale(1.05);
@@ -104,6 +161,9 @@
             margin-top: 1rem;
             font-style: italic;
             color: #888;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .feature-section {
             margin-top: 3rem;
@@ -114,6 +174,8 @@
             border-left: 4px solid var(--neon-purple);
             padding-left: 1rem;
             margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .psycho-grid {
             display: grid;
@@ -126,14 +188,36 @@
             padding: 1.5rem;
             transition: 0.3s;
             border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .psycho-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(189, 0, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .psycho-card:hover::before {
+            left: 100%;
         }
         .psycho-card:hover {
             border-color: var(--neon-purple);
             box-shadow: 0 0 15px rgba(189, 0, 255, 0.3);
+            transform: translateY(-5px);
         }
         .card-title {
             color: var(--gold-touch);
             margin-bottom: 0.5rem;
+            font-size: 1.2rem;
         }
         .card-desc {
             color: #aaa;
@@ -144,9 +228,64 @@
             transition: 0.5s;
             font-size: 0.8rem;
             color: var(--blood-red);
+            margin-top: 0.5rem;
+            font-style: italic;
         }
         .psycho-card:hover .hidden-message {
             opacity: 1;
+        }
+        .ebook-archive {
+            margin-top: 3rem;
+        }
+        .ebook-item {
+            background: rgba(40, 40, 40, 0.5);
+            border-left: 3px solid var(--neon-purple);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ebook-item:hover {
+            background: rgba(60, 60, 60, 0.5);
+            transform: translateX(10px);
+        }
+        .ebook-item-title {
+            color: #fff;
+            font-weight: 600;
+        }
+        .ebook-item-desc {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        .ebook-item-btn {
+            background: transparent;
+            color: var(--neon-purple);
+            border: 1px solid var(--neon-purple);
+            padding: 0.3rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .ebook-item-btn:hover {
+            background: rgba(189, 0, 255, 0.1);
+        }
+        .psycho-footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .neon-text {
+            animation: neonGlow 2s infinite alternate;
+        }
+        @keyframes neonGlow {
+            from { text-shadow: 0 0 5px var(--neon-purple), 0 0 10px var(--neon-purple); }
+            to { text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple); }
         }
     </style>
 </head>
@@ -154,16 +293,16 @@
     <header class="psycho-header">
         <div class="logo">NEXUS</div>
         <nav class="nav-links">
-            <a href="#">Arsip Rahasia</a>
-            <a href="#">Teknik Harian</a>
-            <a href="#">Simulasi Manipulasi</a>
-            <a href="#">Kasus Nyata</a>
+            <a href="#" class="animate__animated animate__fadeIn">Arsip Rahasia</a>
+            <a href="#" class="animate__animated animate__fadeIn">Teknik Harian</a>
+            <a href="#" class="animate__animated animate__fadeIn">Simulasi Manipulasi</a>
+            <a href="#" class="animate__animated animate__fadeIn">Kasus Nyata</a>
         </nav>
-        <button class="login-btn">Masuk ke Pikiran</button>
+        <button class="login-btn animate__animated animate__fadeIn">Masuk ke Pikiran</button>
     </header>
 
     <div class="main-container">
-        <section class="daily-ebook">
+        <section class="daily-ebook animate__animated animate__fadeInUp">
             <h1 class="ebook-title">Seni Memanipulasi Bawah Sadar</h1>
             <p class="ebook-desc">
                 Bagaimana membuat seseorang mengikuti keinginan Anda tanpa mereka sadari? 
@@ -173,14 +312,14 @@
             </p>
             <button class="download-btn">Unduh Sekarang</button>
             <p class="ai-update-status">
-                🔄 <strong>Neuro-AI</strong> sedang memperbarui konten untuk besok...
+                <span class="neon-text">Ψ</span> <strong>Neuro-AI</strong> sedang memperbarui konten untuk besok...
             </p>
         </section>
 
         <section class="feature-section">
             <h2 class="section-title">Alat Psikologi Gelap</h2>
             <div class="psycho-grid">
-                <div class="psycho-card">
+                <div class="psycho-card animate__animated animate__fadeInLeft">
                     <h3 class="card-title">Mind Control Matrix</h3>
                     <p class="card-desc">
                         Visualisasi interaktif teknik manipulasi berbasis jaringan neural.
@@ -189,7 +328,7 @@
                         "Setiap klik mengungkap pola tersembunyi..."
                     </p>
                 </div>
-                <div class="psycho-card">
+                <div class="psycho-card animate__animated animate__fadeInUp">
                     <h3 class="card-title">Dark Pattern Analyzer</h3>
                     <p class="card-desc">
                         Deteksi teknik manipulasi terselubung dalam percakapan sehari-hari.
@@ -198,7 +337,7 @@
                         "Anda sedang dimanipulasi lebih sering dari yang Anda kira..."
                     </p>
                 </div>
-                <div class="psycho-card">
+                <div class="psycho-card animate__animated animate__fadeInRight">
                     <h3 class="card-title">Personality Deconstructor</h3>
                     <p class="card-desc">
                         Bongkar kelemahan psikologis target berdasarkan kepribadian mereka.
@@ -209,50 +348,147 @@
                 </div>
             </div>
         </section>
+
+        <section class="ebook-archive">
+            <h2 class="section-title">Koleksi Ebook Psikologi Gelap</h2>
+            <div id="ebookList">
+                <!-- Ebook akan di-load via JavaScript -->
+            </div>
+        </section>
     </div>
 
+    <footer class="psycho-footer">
+        <p>© 2023 Shadow Psychology Nexus | Pengetahuan adalah senjata</p>
+        <p class="neon-text">"Anda yang memilih: menjadi pemain atau bidak"</p>
+    </footer>
+
     <script>
-        // AI Auto-Updater Simulation
+        // ===== DAFTAR EBOOK PSIKOLOGI NYATA =====
+        const psychoEbooks = [
+            {
+                title: "The 48 Laws of Power (Robert Greene)",
+                desc: "Strategi kekuasaan dari sejarah para penguasa dan manipulator ulung.",
+                category: "Power Dynamics"
+            },
+            {
+                title: "Influence: The Psychology of Persuasion (Cialdini)",
+                desc: "6 prinsip psikologis yang membuat orang mengatakan 'iya'.",
+                category: "Persuasion"
+            },
+            {
+                title: "The Art of Seduction (Robert Greene)",
+                desc: "Pola psikologis dalam seni memikat dan mengontrol emosi.",
+                category: "Social Manipulation"
+            },
+            {
+                title: "Dark Psychology Secrets (Steven Turner)",
+                desc: "Teknik NLP, gaslighting, dan kontrol pikiran terselubung.",
+                category: "Mind Control"
+            },
+            {
+                title: "The Machiavellian's Bible",
+                desc: "Pandangan Machiavelli dalam konteks psikologi modern.",
+                category: "Political Psychology"
+            },
+            {
+                title: "Psychological Warfare (J. Michael)",
+                desc: "Seni perang psikologis dalam hubungan dan bisnis.",
+                category: "Warfare Tactics"
+            },
+            {
+                title: "The Gaslight Effect (Dr. Robin Stern)",
+                desc: "Mengenali dan melawan manipulasi psikologis.",
+                category: "Defense"
+            },
+            {
+                title: "Predatory Thinking (Dave Trott)",
+                desc: "Cara berpikir seperti predator sosial.",
+                category: "Cognitive Patterns"
+            },
+            {
+                title: "The Sociopath Next Door (Martha Stout)",
+                desc: "Mengidentifikasi sosiopat dalam kehidupan sehari-hari.",
+                category: "Abnormal Psychology"
+            },
+            {
+                title: "Games People Play (Eric Berne)",
+                desc: "Analisis transaksional dalam interaksi manipulatif.",
+                category: "Social Games"
+            }
+        ];
+
+        // ===== LOAD EBOOK KE DALAM LIST =====
+        const ebookList = document.getElementById('ebookList');
+        
+        psychoEbooks.forEach(ebook => {
+            const ebookItem = document.createElement('div');
+            ebookItem.className = 'ebook-item animate__animated animate__fadeIn';
+            ebookItem.innerHTML = `
+                <div>
+                    <div class="ebook-item-title">${ebook.title}</div>
+                    <div class="ebook-item-desc">${ebook.desc} <strong>| ${ebook.category}</strong></div>
+                </div>
+                <button class="ebook-item-btn">Baca</button>
+            `;
+            ebookList.appendChild(ebookItem);
+            
+            // Random delay animation
+            ebookItem.style.animationDelay = `${Math.random() * 0.5}s`;
+        });
+
+        // ===== AI AUTO-UPDATER =====
         const ebookTitle = document.querySelector('.ebook-title');
         const ebookDesc = document.querySelector('.ebook-desc');
         const updateStatus = document.querySelector('.ai-update-status');
 
-        const psychoTopics = [
-            "Seni Gaslighting: Membuat Korban Meragukan Realitasnya Sendiri",
-            "Pemrograman Neuro-Linguistik untuk Pengaruh Instan",
-            "Teknik Mirroring: Mencuri Identitas Seseorang untuk Kontrol",
-            "Eksploitasi Trauma: Cara Menggunakan Luka Masa Lalu Seseorang",
-            "Dark Persuasion: Memaksa Keputusan Tanpa Tekanan Terlihat"
+        const dailyTopics = [
+            "Gaslighting Modern: Teknik Membuat Korban Meragukan Realitasnya",
+            "Pemrograman Neurolinguistik untuk Kontrol Pikiran",
+            "Seni Mirroring: Mencuri Identitas untuk Manipulasi",
+            "Eksploitasi Trauma: Seni Memanfaatkan Luka Psikologis",
+            "Dark Persuasion: Memaksa Keputusan Tanpa Tekanan"
         ];
 
-        const psychoDescriptions = [
-            "Gaslighting bukan sekadar manipulasi, tapi penciptaan realitas alternatif. Pelajari bagaimana membuat seseorang mempertanyakan ingatan, persepsi, dan bahkan kewarasannya sendiri.",
-            "NLP adalah senjata psikologis yang ampuh. Kuasai pola bahasa tersembunyi yang langsung mengakses alam bawah sadar target Anda.",
-            "Dengan meniru gerakan, nada suara, dan pola pernapasan seseorang, Anda bisa menciptakan ikatan manipulatif dalam hitungan menit.",
-            "Setiap orang membawa luka psikologis. Ebook ini mengajarkan cara mengidentifikasi dan memanfaatkannya untuk kontrol emosional.",
-            "Bagaimana membuat seseorang 'memilih' apa yang Anda inginkan, sementara mereka yakin itu adalah ide mereka sendiri."
+        const dailyDescs = [
+            "Pelajari 7 varian gaslighting kontemporer yang tidak terdeteksi oleh kebanyakan orang.",
+            "Pola bahasa khusus yang langsung mengakses alam bawah sadar target Anda.",
+            "Dengan meniru gerakan mikro, Anda bisa membangun rapport dalam 3 menit.",
+            "Setiap orang membawa luka masa kecil - ebook ini mengajarkan cara menemukan dan memanfaatkannya.",
+            "Bagaimana membuat seseorang 'memilih' apa yang Anda inginkan, sementara mereka yakin itu ide mereka sendiri."
         ];
 
         function updateDailyContent() {
-            const randomIndex = Math.floor(Math.random() * psychoTopics.length);
-            ebookTitle.textContent = psychoTopics[randomIndex];
-            ebookDesc.textContent = psychoDescriptions[randomIndex];
-            updateStatus.textContent = "🔄 Neuro-AI baru saja memperbarui konten...";
+            const randomIndex = Math.floor(Math.random() * dailyTopics.length);
+            
+            // Animasi fade out
+            ebookTitle.style.animation = 'fadeOut 0.5s forwards';
+            ebookDesc.style.animation = 'fadeOut 0.5s forwards';
             
             setTimeout(() => {
-                updateStatus.textContent = "✅ Pembaruan selesai. Ebook besok sedang disiapkan...";
-            }, 3000);
+                ebookTitle.textContent = dailyTopics[randomIndex];
+                ebookDesc.textContent = dailyDescs[randomIndex];
+                
+                // Animasi fade in
+                ebookTitle.style.animation = 'fadeIn 0.5s forwards';
+                ebookDesc.style.animation = 'fadeIn 0.5s forwards';
+                
+                updateStatus.innerHTML = `<span class="neon-text">Ψ</span> <strong>Neuro-AI</strong> baru saja memperbarui konten...`;
+                
+                setTimeout(() => {
+                    updateStatus.innerHTML = `<span class="neon-text">Ψ</span> <strong>Neuro-AI</strong> siap memberikan pengetahuan gelap...`;
+                }, 3000);
+            }, 500);
         }
 
         // Auto-update setiap 24 jam (simulasi)
         setInterval(updateDailyContent, 24 * 60 * 60 * 1000);
 
-        // Trigger untuk demo (bisa dihapus)
+        // Trigger manual untuk demo (tekan 'U')
         document.addEventListener('keydown', (e) => {
             if (e.key === 'u') updateDailyContent();
         });
 
-        // Efek hover psikologis
+        // ===== EFFECTS =====
         const cards = document.querySelectorAll('.psycho-card');
         cards.forEach(card => {
             card.addEventListener('mouseenter', () => {
@@ -263,6 +499,19 @@
             card.addEventListener('mouseleave', () => {
                 card.style.boxShadow = '0 0 15px rgba(189, 0, 255, 0.1)';
             });
+        });
+
+        // Efek scroll animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__fadeInUp');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.ebook-item').forEach(item => {
+            observer.observe(item);
         });
     </script>
 </body>
