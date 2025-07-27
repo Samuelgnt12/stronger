@@ -1,93 +1,269 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="midnight">
+<html lang="id" data-theme="psycho-dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Mind Library | Arsip Psikologi Gelap</title>
-    <link rel="stylesheet" href="css/luxury.css">
-    <script src="js/neuromancer.js" defer></script>
+    <title>NEXUS | Lab Psikologi Gelap</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Montserrat:wght@400;600&display=swap">
+    <style>
+        :root {
+            --darkness: #0a0a0a;
+            --neon-purple: #bd00ff;
+            --gold-touch: #ffd700;
+            --blood-red: #d10000;
+        }
+        body {
+            background: radial-gradient(circle at center, #1a1a1a, #000);
+            font-family: 'Montserrat', sans-serif;
+            color: #e0e0e0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .psycho-header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--neon-purple);
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--neon-purple), var(--gold-touch));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(189, 0, 255, 0.3);
+        }
+        .nav-links a {
+            color: #ccc;
+            margin: 0 1rem;
+            text-decoration: none;
+            transition: 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: var(--neon-purple);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-purple);
+            transition: 0.3s;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .daily-ebook {
+            background: rgba(20, 20, 20, 0.7);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(189, 0, 255, 0.2);
+            transition: 0.5s;
+        }
+        .daily-ebook:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(189, 0, 255, 0.4);
+        }
+        .ebook-title {
+            font-size: 1.8rem;
+            color: var(--gold-touch);
+            margin-bottom: 0.5rem;
+        }
+        .ebook-desc {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .download-btn {
+            background: linear-gradient(45deg, var(--neon-purple), #8a2be2);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(189, 0, 255, 0.5);
+        }
+        .ai-update-status {
+            margin-top: 1rem;
+            font-style: italic;
+            color: #888;
+        }
+        .feature-section {
+            margin-top: 3rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--neon-purple);
+            border-left: 4px solid var(--neon-purple);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .psycho-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .psycho-card {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: 0.3s;
+            border: 1px solid #333;
+        }
+        .psycho-card:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px rgba(189, 0, 255, 0.3);
+        }
+        .card-title {
+            color: var(--gold-touch);
+            margin-bottom: 0.5rem;
+        }
+        .card-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .hidden-message {
+            opacity: 0;
+            transition: 0.5s;
+            font-size: 0.8rem;
+            color: var(--blood-red);
+        }
+        .psycho-card:hover .hidden-message {
+            opacity: 1;
+        }
+    </style>
 </head>
-<body class="bg-void-black">
-    <header class="glass-navbar">
-        <div class="logo-alchemy">
-            <span class="sigil">Ψ</span>
-            <h1>Shadow<span>Mind</span></h1>
-        </div>
-        <nav class="mind-menu">
-            <ul>
-                <li><a href="#" class="neural-link">Arsip Gelap</a></li>
-                <li><a href="#" class="neural-link">Teknik Harian</a></li>
-                <li><a href="#" class="neural-link">Laboratorium</a></li>
-                <li><a href="#" class="neural-link">Kasus Nyata</a></li>
-            </ul>
+<body>
+    <header class="psycho-header">
+        <div class="logo">NEXUS</div>
+        <nav class="nav-links">
+            <a href="#">Arsip Rahasia</a>
+            <a href="#">Teknik Harian</a>
+            <a href="#">Simulasi Manipulasi</a>
+            <a href="#">Kasus Nyata</a>
         </nav>
-        <div class="user-psy">
-            <button class="mind-login">Masuk ke Pikiran</button>
-        </div>
+        <button class="login-btn">Masuk ke Pikiran</button>
     </header>
 
-    <main class="library-grid">
-        <section class="featured-tome">
-            <div class="tome-cover" id="dynamicCover">
-                <h2 class="title-glitch">Ebook Hari Ini</h2>
-                <div class="psycho-pulse"></div>
-            </div>
-            <div class="tome-content">
-                <h3 id="dailyTitle">Memikat Bawah Sadar</h3>
-                <p id="dailyExcerpt">Teknik memanipulasi persepsi melalui stimulus subliminal yang bekerja pada sistem limbik...</p>
-                <div class="neural-progress">
-                    <span>Kecerdasan sedang memperbarui...</span>
-                    <div class="synapse-loader"></div>
-                </div>
-                <button class="download-psi">Unduh ke Pikiran</button>
-            </div>
+    <div class="main-container">
+        <section class="daily-ebook">
+            <h1 class="ebook-title">Seni Memanipulasi Bawah Sadar</h1>
+            <p class="ebook-desc">
+                Bagaimana membuat seseorang mengikuti keinginan Anda tanpa mereka sadari? 
+                Ebook ini membongkar teknik-teknik psikologis tersembunyi yang digunakan 
+                oleh para master manipulasi. Pelajari cara memanfaatkan bias kognitif, 
+                priming subliminal, dan trik neurolinguistik.
+            </p>
+            <button class="download-btn">Unduh Sekarang</button>
+            <p class="ai-update-status">
+                🔄 <strong>Neuro-AI</strong> sedang memperbarui konten untuk besok...
+            </p>
         </section>
 
-        <section class="mind-laboratory">
-            <h2><span class="neuro-icon">⚗️</span> Lab Psikologi Gelap</h2>
-            <div class="experiment-container">
-                <div class="psycho-widget" id="manipulationMatrix">
-                    <h3>Matriks Manipulasi</h3>
-                    <canvas id="psychCanvas"></canvas>
-                    <p>Analisis interaksi harian Anda dengan pola manipulasi tersembunyi</p>
+        <section class="feature-section">
+            <h2 class="section-title">Alat Psikologi Gelap</h2>
+            <div class="psycho-grid">
+                <div class="psycho-card">
+                    <h3 class="card-title">Mind Control Matrix</h3>
+                    <p class="card-desc">
+                        Visualisasi interaktif teknik manipulasi berbasis jaringan neural.
+                    </p>
+                    <p class="hidden-message">
+                        "Setiap klik mengungkap pola tersembunyi..."
+                    </p>
                 </div>
-                <div class="psycho-widget" id="darkPatterns">
-                    <h3>Pola Gelap Hari Ini</h3>
-                    <ul id="dailyPatterns">
-                        <!-- AI akan mengisi ini -->
-                    </ul>
+                <div class="psycho-card">
+                    <h3 class="card-title">Dark Pattern Analyzer</h3>
+                    <p class="card-desc">
+                        Deteksi teknik manipulasi terselubung dalam percakapan sehari-hari.
+                    </p>
+                    <p class="hidden-message">
+                        "Anda sedang dimanipulasi lebih sering dari yang Anda kira..."
+                    </p>
+                </div>
+                <div class="psycho-card">
+                    <h3 class="card-title">Personality Deconstructor</h3>
+                    <p class="card-desc">
+                        Bongkar kelemahan psikologis target berdasarkan kepribadian mereka.
+                    </p>
+                    <p class="hidden-message">
+                        "Semua orang memiliki celah, temukan milik mereka..."
+                    </p>
                 </div>
             </div>
         </section>
-
-        <section class="archive-section">
-            <h2><span class="neuro-icon">📚</span> Arsip Rahasia</h2>
-            <div class="archive-grid" id="ebookArchive">
-                <!-- AI akan mengisi ebook-ebook sebelumnya -->
-            </div>
-        </section>
-    </main>
-
-    <footer class="neuro-footer">
-        <div class="disclaimer">
-            <p>⚠️ Pengetahuan dalam situs ini adalah pedang bermata dua. Gunakan dengan tanggung jawab.</p>
-        </div>
-        <div class="mind-signature">
-            <p>Dikurasi oleh <span class="ai-name">Neuro</span>, Kecerdasan Psikologis</p>
-            <p class="subtle-glitch">"Kami hanya menunjukkan jalan... Anda yang memilih melangkah"</p>
-        </div>
-    </footer>
-
-    <div class="psycho-modal" id="deepMindModal">
-        <div class="modal-content">
-            <span class="close-psy">&times;</span>
-            <h3>Masuk Lebih Dalam</h3>
-            <p>Untuk mengakses arsip lengkap, verifikasi bahwa Anda manusia...</p>
-            <div class="human-verify">
-                <label>Pilih gambar yang menunjukkan emosi asli:</label>
-                <div class="emo-grid" id="emotionalCAPTCHA"></div>
-            </div>
-        </div>
     </div>
+
+    <script>
+        // AI Auto-Updater Simulation
+        const ebookTitle = document.querySelector('.ebook-title');
+        const ebookDesc = document.querySelector('.ebook-desc');
+        const updateStatus = document.querySelector('.ai-update-status');
+
+        const psychoTopics = [
+            "Seni Gaslighting: Membuat Korban Meragukan Realitasnya Sendiri",
+            "Pemrograman Neuro-Linguistik untuk Pengaruh Instan",
+            "Teknik Mirroring: Mencuri Identitas Seseorang untuk Kontrol",
+            "Eksploitasi Trauma: Cara Menggunakan Luka Masa Lalu Seseorang",
+            "Dark Persuasion: Memaksa Keputusan Tanpa Tekanan Terlihat"
+        ];
+
+        const psychoDescriptions = [
+            "Gaslighting bukan sekadar manipulasi, tapi penciptaan realitas alternatif. Pelajari bagaimana membuat seseorang mempertanyakan ingatan, persepsi, dan bahkan kewarasannya sendiri.",
+            "NLP adalah senjata psikologis yang ampuh. Kuasai pola bahasa tersembunyi yang langsung mengakses alam bawah sadar target Anda.",
+            "Dengan meniru gerakan, nada suara, dan pola pernapasan seseorang, Anda bisa menciptakan ikatan manipulatif dalam hitungan menit.",
+            "Setiap orang membawa luka psikologis. Ebook ini mengajarkan cara mengidentifikasi dan memanfaatkannya untuk kontrol emosional.",
+            "Bagaimana membuat seseorang 'memilih' apa yang Anda inginkan, sementara mereka yakin itu adalah ide mereka sendiri."
+        ];
+
+        function updateDailyContent() {
+            const randomIndex = Math.floor(Math.random() * psychoTopics.length);
+            ebookTitle.textContent = psychoTopics[randomIndex];
+            ebookDesc.textContent = psychoDescriptions[randomIndex];
+            updateStatus.textContent = "🔄 Neuro-AI baru saja memperbarui konten...";
+            
+            setTimeout(() => {
+                updateStatus.textContent = "✅ Pembaruan selesai. Ebook besok sedang disiapkan...";
+            }, 3000);
+        }
+
+        // Auto-update setiap 24 jam (simulasi)
+        setInterval(updateDailyContent, 24 * 60 * 60 * 1000);
+
+        // Trigger untuk demo (bisa dihapus)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'u') updateDailyContent();
+        });
+
+        // Efek hover psikologis
+        const cards = document.querySelectorAll('.psycho-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const randomGlow = Math.floor(Math.random() * 3);
+                const colors = ['rgba(189, 0, 255, 0.3)', 'rgba(255, 215, 0, 0.3)', 'rgba(209, 0, 0, 0.3)'];
+                card.style.boxShadow = `0 0 20px ${colors[randomGlow]}`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = '0 0 15px rgba(189, 0, 255, 0.1)';
+            });
+        });
+    </script>
 </body>
 </html>
