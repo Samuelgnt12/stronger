@@ -3,722 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow Nexus | Ultimate Psychology Archive</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --void: #0a0a0a;
-            --neon: #bd00ff;
-            --gold: #ffd700;
-            --blood: #d10000;
-            --accent: #8a2be2;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%);
-            font-family: 'Lora', serif;
-            color: #e0e0e0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        /* Dynamic Background */
-        .psycho-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.03;
-            background-image: 
-                radial-gradient(circle at 20% 30%, var(--neon) 0%, transparent 20%),
-                radial-gradient(circle at 80% 70%, var(--gold) 0%, transparent 20%);
-            animation: pulse 15s infinite alternate;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.03; }
-            100% { opacity: 0.08; }
-        }
-        
-        /* Header */
-        .nexus-header {
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
-            padding: 1.5rem 3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-        }
-        
-        .logo-sigil {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .sigil {
-            font-size: 2.5rem;
-            color: var(--neon);
-            text-shadow: 0 0 10px var(--neon);
-            animation: glow 2s infinite alternate;
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 0 0 5px var(--neon); }
-            to { text-shadow: 0 0 15px var(--neon), 0 0 20px var(--blood); }
-        }
-        
-        .logo-text {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            background: linear-gradient(90deg, var(--gold), var(--neon));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 1px;
-        }
-        
-        /* Navigation */
-        .nexus-nav {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-link {
-            color: #ccc;
-            text-decoration: none;
-            font-weight: 500;
-            position: relative;
-            padding: 0.5rem 0;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover {
-            color: var(--gold);
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--neon), var(--gold));
-            transition: width 0.3s;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        /* Main Content */
-        .nexus-main {
-            max-width: 1400px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 3rem;
-        }
-        
-        /* Daily Tome */
-        .daily-tome {
-            background: rgba(20, 20, 20, 0.7);
-            border: 1px solid var(--accent);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.2);
-            transition: transform 0.5s, box-shadow 0.5s;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            min-height: 400px;
-        }
-        
-        .daily-tome:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.3);
-        }
-        
-        .tome-cover {
-            background: linear-gradient(135deg, #1a1a1a, #2a0a4a);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tome-cover::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                transparent,
-                rgba(189, 0, 255, 0.1),
-                transparent
-            );
-            transform: rotate(30deg);
-            animation: shine 6s infinite;
-        }
-        
-        @keyframes shine {
-            0% { transform: rotate(30deg) translate(-30%, -30%); }
-            100% { transform: rotate(30deg) translate(30%, 30%); }
-        }
-        
-        .tome-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            z-index: 1;
-        }
-        
-        .tome-date {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            z-index: 1;
-        }
-        
-        .tome-image {
-            width: 180px;
-            height: 240px;
-            background: #2a0a4a;
-            border: 2px solid var(--gold);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 3rem;
-            color: var(--gold);
-            z-index: 1;
-        }
-        
-        .tome-content {
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .tome-description {
-            line-height: 1.8;
-            margin-bottom: 2rem;
-            flex-grow: 1;
-        }
-        
-        .tome-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-        
-        .tome-pages {
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-        
-        .tome-actions {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .tome-btn {
-            padding: 0.7rem 1.5rem;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, var(--neon), var(--accent));
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(189, 0, 255, 0.4);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--gold);
-            border: 1px solid var(--gold);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-        
-        /* AI Status */
-        .ai-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #888;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .ai-pulse {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--neon);
-            animation: pulse 1.5s infinite;
-        }
-        
-        /* Archive Grid */
-        .archive-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .archive-card {
-            background: rgba(30, 30, 30, 0.7);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .archive-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 0;
-            background: linear-gradient(to bottom, var(--neon), var(--gold));
-            transition: height 0.3s;
-        }
-        
-        .archive-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
-        }
-        
-        .archive-card:hover::before {
-            height: 100%;
-        }
-        
-        .archive-category {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(138, 43, 226, 0.2);
-            color: var(--neon);
-            padding: 0.3rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        .archive-title {
-            font-size: 1.2rem;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-            font-family: 'Cinzel', serif;
-        }
-        
-        .archive-desc {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-        
-        .archive-meta {
-            display: flex;
-            justify-content: space-between;
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
-        /* Dark Patterns Section */
-        .dark-patterns {
-            background: rgba(20, 20, 20, 0.7);
-            border-radius: 12px;
-            padding: 2rem;
-            border: 1px solid rgba(209, 0, 0, 0.3);
-        }
-        
-        .pattern-list {
-            margin-top: 1.5rem;
-            display: grid;
-            gap: 1rem;
-        }
-        
-        .pattern-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            background: rgba(30, 30, 30, 0.7);
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        .pattern-item:hover {
-            background: rgba(209, 0, 0, 0.1);
-            transform: translateX(5px);
-        }
-        
-        .pattern-icon {
-            font-size: 1.5rem;
-            color: var(--blood);
-        }
-        
-        .pattern-content h4 {
-            color: var(--gold);
-            margin-bottom: 0.3rem;
-        }
-        
-        .pattern-content p {
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-        
-        /* Footer */
-        .nexus-footer {
-            background: rgba(10, 10, 10, 0.9);
-            padding: 3rem;
-            text-align: center;
-            margin-top: 5rem;
-            border-top: 1px solid rgba(138, 43, 226, 0.3);
-        }
-        
-        .footer-disclaimer {
-            max-width: 700px;
-            margin: 0 auto 2rem;
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .footer-link {
-            color: #888;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-link:hover {
-            color: var(--gold);
-        }
-        
-        .footer-copyright {
-            color: #444;
-            font-size: 0.8rem;
-        }
-        
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .daily-tome {
-                grid-template-columns: 1fr;
-            }
-            
-            .tome-cover {
-                padding: 2rem 0;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .nexus-header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .nexus-nav {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .tome-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <title>TechVision 2030 | Masa Depan AI & IoT</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="psycho-bg"></div>
-    
-    <header class="nexus-header">
-        <div class="logo-sigil">
-            <div class="sigil">Ψ</div>
-            <div class="logo-text">SHADOW NEXUS</div>
+    <!-- Navbar Holografik -->
+    <nav class="holographic-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">TechVision</span>
+                <span class="logo-year">2030</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active">Beranda</a></li>
+                <li><a href="#ai" class="nav-link">AI 2030</a></li>
+                <li><a href="#iot" class="nav-link">IoT 2030</a></li>
+                <li><a href="#predictions" class="nav-link">Prediksi</a></li>
+                <li><a href="#experts" class="nav-link">Pakar</a></li>
+                <li><a href="#contact" class="nav-link">Kontak</a></li>
+            </ul>
+            <div class="nav-hamburger">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
         </div>
-        
-        <nav class="nexus-nav">
-            <a href="#" class="nav-link">Arsip Gelap</a>
-            <a href="#" class="nav-link">Teknik Harian</a>
-            <a href="#" class="nav-link">Laboratorium</a>
-            <a href="#" class="nav-link">Kasus Nyata</a>
-            <a href="#" class="nav-link">Tentang</a>
-        </nav>
-    </header>
-    
-    <main class="nexus-main">
-        <section class="daily-tome">
-            <div class="tome-cover">
-                <div class="tome-title" id="dailyTomeTitle">Seni Manipulasi Modern</div>
-                <div class="tome-date" id="dailyTomeDate">27 Juli 2023</div>
-                <div class="tome-image">📘</div>
+    </nav>
+
+    <!-- Hero Section dengan Animasi Particle -->
+    <section id="home" class="hero">
+        <div class="particles" id="particles-js"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-word">Masa</span>
+                <span class="title-word">Depan</span>
+                <span class="title-word">Teknologi</span>
+                <span class="title-year">2030</span>
+            </h1>
+            <p class="hero-subtitle">Eksplorasi revolusi AI & IoT yang akan mengubah dunia dalam dekade mendatang</p>
+            <div class="hero-buttons">
+                <a href="#ai" class="btn-primary">Jelajahi AI</a>
+                <a href="#iot" class="btn-secondary">Temukan IoT</a>
+            </div>
+        </div>
+        <div class="scroll-down">
+            <div class="scroll-icon"></div>
+        </div>
+    </section>
+
+    <!-- AI 2030 Section -->
+    <section id="ai" class="section ai-section">
+        <div class="section-header">
+            <h2 class="section-title">Kecerdasan Buatan <span>2030</span></h2>
+            <p class="section-subtitle">Bagaimana AI akan mencapai kecerdasan setara manusia dan melampauinya</p>
+        </div>
+        <div class="ai-features">
+            <!-- AI Feature 1 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">AGI (Artificial General Intelligence)</h3>
+                <p class="feature-desc">AI dengan kemampuan kognitif setara manusia yang dapat belajar dan beradaptasi seperti manusia.</p>
+                <div class="feature-progress">
+                    <div class="progress-bar" style="width: 65%;">
+                        <span class="progress-text">65% menuju AGI</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="tome-content">
-                <div class="tome-description" id="dailyTomeDesc">
-                    Ebook hari ini membahas teknik-teknik manipulasi psikologis terkini yang digunakan dalam media sosial, politik, dan hubungan interpersonal. Pelajari bagaimana algoritma dan desain antarmuka dimanfaatkan untuk mempengaruhi keputusan Anda tanpa disadari.
+            <!-- AI Feature 2 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
                 </div>
-                
-                <div class="tome-meta">
-                    <div class="tome-pages">🔒 124 halaman | ⚡ Level Lanjut</div>
-                    <div class="tome-actions">
-                        <button class="tome-btn btn-primary" id="readBtn">Baca Sekarang</button>
-                        <button class="tome-btn btn-secondary" id="downloadBtn">Download PDF</button>
+                <h3 class="feature-title">Robotika Sosial</h3>
+                <p class="feature-desc">Robot dengan kecerdasan emosional yang dapat berinteraksi secara alami dengan manusia.</p>
+                <div class="feature-progress">
+                    <div class="progress-bar" style="width: 45%;">
+                        <span class="progress-text">45% perkembangan</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Feature 3 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <h3 class="feature-title">AI dalam Kesehatan</h3>
+                <p class="feature-desc">Diagnosis penyakit dan penemuan obat yang dipersonalisasi oleh AI dengan akurasi 99.9%.</p>
+                <div class="feature-progress">
+                    <div class="progress-bar" style="width: 80%;">
+                        <span class="progress-text">80% adopsi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Timeline -->
+        <div class="ai-timeline">
+            <h3 class="timeline-title">Perkembangan AI Menuju 2030</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-content">
+                        <h4>Generative AI Boom</h4>
+                        <p>ChatGPT, DALL-E, dan model generatif lainnya menjadi mainstream.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2025</div>
+                    <div class="timeline-content">
+                        <h4>AI Multimodal</h4>
+                        <p>AI dapat memahami dan menghasilkan teks, gambar, suara, dan video secara terpadu.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2028</div>
+                    <div class="timeline-content">
+                        <h4>AI Otonom</h4>
+                        <p>Sistem AI dapat beroperasi dan mengambil keputusan kompleks tanpa campur tangan manusia.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2030</div>
+                    <div class="timeline-content">
+                        <h4>Artificial General Intelligence</h4>
+                        <p>AI mencapai kecerdasan setara manusia dalam berbagai domain pengetahuan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IoT 2030 Section -->
+    <section id="iot" class="section iot-section">
+        <div class="section-header">
+            <h2 class="section-title">Internet of Things <span>2030</span></h2>
+            <p class="section-subtitle">Dunia yang terhubung secara sempurna dengan miliaran perangkat cerdas</p>
+        </div>
+        
+        <div class="iot-grid">
+            <!-- IoT Card 1 -->
+            <div class="iot-card">
+                <div class="iot-card-header smart-cities"></div>
+                <div class="iot-card-body">
+                    <h3>Kota Cerdas</h3>
+                    <p>Infrastruktur kota yang sepenuhnya otomatis dan terhubung, mengoptimalkan energi, transportasi, dan layanan publik.</p>
+                    <div class="iot-stats">
+                        <div class="stat">
+                            <span class="stat-value">500+</span>
+                            <span class="stat-label">Kota Cerdas</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">1T+</span>
+                            <span class="stat-label">Sensor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- IoT Card 2 -->
+            <div class="iot-card">
+                <div class="iot-card-header digital-twin"></div>
+                <div class="iot-card-body">
+                    <h3>Digital Twin</h3>
+                    <p>Replika digital real-time dari objek fisik, proses, dan sistem yang memungkinkan simulasi dan prediksi akurat.</p>
+                    <div class="iot-stats">
+                        <div class="stat">
+                            <span class="stat-value">90%</span>
+                            <span class="stat-label">Perusahaan</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">100M+</span>
+                            <span class="stat-label">Digital Twin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- IoT Card 3 -->
+            <div class="iot-card">
+                <div class="iot-card-header edge-computing"></div>
+                <div class="iot-card-body">
+                    <h3>Edge Computing</h3>
+                    <p>Pemrosesan data di sumbernya untuk latensi ultra-rendah, memungkinkan aplikasi real-time seperti AR dan robotika.</p>
+                    <div class="iot-stats">
+                        <div class="stat">
+                            <span class="stat-value">75%</span>
+                            <span class="stat-label">Data Diproses</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">10ms</span>
+                            <span class="stat-label">Latensi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- IoT Network Visualization -->
+        <div class="iot-visualization">
+            <h3>Jaringan IoT Global 2030</h3>
+            <div class="visualization-container">
+                <div class="globe-container" id="iot-globe"></div>
+                <div class="iot-stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-number" id="devices-count">0</span>
+                        <span class="stat-label">Perangkat Terhubung</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="data-volume">0</span>
+                        <span class="stat-label">ZB Data/Tahun</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="market-size">0</span>
+                        <span class="stat-label">Triliun USD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Predictions Section -->
+    <section id="predictions" class="section predictions-section">
+        <div class="section-header">
+            <h2 class="section-title">Prediksi <span>2030</span></h2>
+            <p class="section-subtitle">Masa depan yang akan kita jalani dalam beberapa tahun mendatang</p>
+        </div>
+        
+        <div class="predictions-tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="tech">Teknologi</button>
+                <button class="tab-button" data-tab="society">Masyarakat</button>
+                <button class="tab-button" data-tab="economy">Ekonomi</button>
+                <button class="tab-button" data-tab="environment">Lingkungan</button>
+            </div>
+            
+            <div class="tab-contents">
+                <!-- Tech Tab -->
+                <div class="tab-content active" id="tech-tab">
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Komputasi Kuantum Mainstream</h3>
+                            <p>Komputer kuantum akan menjadi alat standar untuk penelitian, kriptografi, dan optimasi kompleks, dengan akses cloud yang tersedia untuk bisnis.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-vr-cardboard"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Metaverse yang Mapan</h3>
+                            <p>Realitas virtual/augmented akan menjadi platform utama untuk bekerja, belajar, dan bersosialisasi dengan pengalaman imersif yang tak terbedakan dari realitas.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-dna"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Rekayasa Biologi</h3>
+                            <p>CRISPR dan teknologi editing gen lainnya akan memungkinkan penyembuhan penyakit genetik dan peningkatan manusia secara selektif.</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="ai-status">
-                    <div class="ai-pulse"></div>
-                    <span id="aiStatusText">Neuro-AI sedang memperbarui konten untuk besok...</span>
+                <!-- Society Tab -->
+                <div class="tab-content" id="society-tab">
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Pendidikan Personalisasi AI</h3>
+                            <p>Setiap individu akan memiliki tutor AI yang menyesuaikan kurikulum dengan gaya belajar, minat, dan kecepatan masing-masing siswa.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-clinic-medical"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Kesehatan Prediktif</h3>
+                            <p>Perangkat wearable dan implant akan memantau kesehatan 24/7 dan memprediksi penyakit sebelum gejala muncul.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>UBI (Universal Basic Income)</h3>
+                            <p>Dengan otomatisasi masif, banyak negara akan menerapkan UBI untuk menanggulangi pengangguran teknologi.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Economy Tab -->
+                <div class="tab-content" id="economy-tab">
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Kolaborasi Manusia-AI</h3>
+                            <p>80% pekerja akan berkolaborasi dengan asisten AI dalam pekerjaan sehari-hari, meningkatkan produktivitas 10x lipat.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Pabrik Otonom</h3>
+                            <p>Pabrik akan sepenuhnya dijalankan oleh robot dan AI dengan intervensi manusia minimal, beroperasi 24/7/365.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Pertanian Vertikal</h3>
+                            <p>70% produksi sayuran akan berasal dari pertanian vertikal berbasis IoT di perkotaan dengan hasil 100x lebih efisien.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Environment Tab -->
+                <div class="tab-content" id="environment-tab">
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-solar-panel"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Energi Terbarukan 100%</h3>
+                            <p>Banyak kota akan mencapai 100% energi terbarukan dengan smart grid yang dioptimalkan AI dan penyimpanan energi mutakhir.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-recycle"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Ekonomi Sirkular</h3>
+                            <p>IoT akan memungkinkan pelacakan dan optimalisasi sumber daya secara real-time, mengurangi limbah hingga 95%.</p>
+                        </div>
+                    </div>
+                    <div class="prediction-card">
+                        <div class="prediction-icon">
+                            <i class="fas fa-temperature-low"></i>
+                        </div>
+                        <div class="prediction-text">
+                            <h3>Rekayasa Iklim</h3>
+                            <p>Teknologi geoengineering berbasis AI akan digunakan secara terbatas untuk mengatasi efek perubahan iklim.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
-        
-        <section class="dark-patterns">
-            <h2 class="section-title">🔮 Pola Gelap Hari Ini</h2>
-            <div class="pattern-list" id="darkPatternsList">
-                <!-- Will be filled by JavaScript -->
-            </div>
-        </section>
-        
-        <section>
-            <h2 class="section-title">📚 Arsip Rahasia</h2>
-            <div class="archive-grid" id="archiveGrid">
-                <!-- Will be filled by JavaScript -->
-            </div>
-        </section>
-    </main>
-    
-    <footer class="nexus-footer">
-        <p class="footer-disclaimer">
-            ⚠️ Semua konten dalam situs ini bersifat edukasional. Penggunaan teknik psikologi gelap untuk manipulasi berbahaya dapat memiliki konsekuensi hukum dan moral. Gunakan pengetahuan ini dengan bijak.
-        </p>
-        
-        <div class="footer-links">
-            <a href="#" class="footer-link">Syarat Penggunaan</a>
-            <a href="#" class="footer-link">Kebijakan Privasi</a>
-            <a href="#" class="footer-link">Kontak</a>
-            <a href="#" class="footer-link">Donasi</a>
+        </div>
+    </section>
+
+    <!-- Experts Section -->
+    <section id="experts" class="section experts-section">
+        <div class="section-header">
+            <h2 class="section-title">Pakar <span>Kami</span></h2>
+            <p class="section-subtitle">Para ahli yang memandu eksplorasi masa depan teknologi</p>
         </div>
         
-        <p class="footer-copyright">
-            © 2023 Shadow Nexus | Dikurasi oleh <span style="color: var(--neon)">Neuro</span>-AI
-        </p>
+        <div class="experts-carousel">
+            <div class="carousel-container">
+                <!-- Expert 1 -->
+                <div class="expert-card">
+                    <div class="expert-image">
+                        <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Dr. Sarah Chen">
+                        <div class="expert-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-globe"></i></a>
+                        </div>
+                    </div>
+                    <div class="expert-info">
+                        <h3>Dr. Sarah Chen</h3>
+                        <p class="expert-title">Kepala Peneliti AI - Singularity Institute</p>
+                        <p class="expert-bio">Pakar AGI dengan spesialisasi dalam keselarasan nilai AI dan etika mesin.</p>
+                        <div class="expert-tags">
+                            <span class="tag">AGI</span>
+                            <span class="tag">AI Safety</span>
+                            <span class="tag">Neuroscience</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Expert 2 -->
+                <div class="expert-card">
+                    <div class="expert-image">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Prof. Raj Patel">
+                        <div class="expert-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-globe"></i></a>
+                        </div>
+                    </div>
+                    <div class="expert-info">
+                        <h3>Prof. Raj Patel</h3>
+                        <p class="expert-title">Direktur IoT Lab - MIT</p>
+                        <p class="expert-bio">Pionir dalam edge computing dan jaringan sensor nirkabel generasi berikutnya.</p>
+                        <div class="expert-tags">
+                            <span class="tag">IoT</span>
+                            <span class="tag">6G</span>
+                            <span class="tag">Smart Cities</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Expert 3 -->
+                <div class="expert-card">
+                    <div class="expert-image">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Dr. Elena Petrova">
+                        <div class="expert-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-globe"></i></a>
+                        </div>
+                    </div>
+                    <div class="expert-info">
+                        <h3>Dr. Elena Petrova</h3>
+                        <p class="expert-title">Kepala Futurist - Quantum Futures</p>
+                        <p class="expert-bio">Spesialis dalam dampak sosial teknologi kuantum dan AI pada tata kelola global.</p>
+                        <div class="expert-tags">
+                            <span class="tag">Quantum</span>
+                            <span class="tag">Policy</span>
+                            <span class="tag">Forecasting</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Expert 4 -->
+                <div class="expert-card">
+                    <div class="expert-image">
+                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Dr. Kwame Johnson">
+                        <div class="expert-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fas fa-globe"></i></a>
+                        </div>
+                    </div>
+                    <div class="expert-info">
+                        <h3>Dr. Kwame Johnson</h3>
+                        <p class="expert-title">CEO NeuroLink Systems</p>
+                        <p class="expert-bio">Pemimpin dalam antarmuka otak-komputer dan augmented cognition.</p>
+                        <div class="expert-tags">
+                            <span class="tag">BCI</span>
+                            <span class="tag">Neuroscience</span>
+                            <span class="tag">Augmentation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact-section">
+        <div class="section-header">
+            <h2 class="section-title">Tetap <span>Terhubung</span></h2>
+            <p class="section-subtitle">Bergabunglah dengan diskusi tentang masa depan teknologi</p>
+        </div>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Email</h3>
+                        <p>info@techvision2030.com</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Lokasi</h3>
+                        <p>Jakarta Future Tech Hub, Indonesia</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Event Mendatang</h3>
+                        <p>TechVision 2030 Summit - 15 November 2023</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <form id="future-form">
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="Nama Anda" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="Email Anda" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="interest">
+                            <option value="">Minat Anda</option>
+                            <option value="ai">AI Masa Depan</option>
+                            <option value="iot">IoT 2030</option>
+                            <option value="quantum">Komputasi Kuantum</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" placeholder="Pesan Anda tentang masa depan..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Kirim Pesan</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <div class="newsletter-section">
+        <div class="newsletter-container">
+            <div class="newsletter-text">
+                <h3>Berlangganan Newsletter Masa Depan</h3>
+                <p>Dapatkan update terbaru tentang prediksi teknologi langsung ke inbox Anda.</p>
+            </div>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Alamat email Anda">
+                <button class="btn-primary">Berlangganan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="future-footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="logo">
+                    <span class="logo-text">TechVision</span>
+                    <span class="logo-year">2030</span>
+                </div>
+                <p>Menjelajahi dan membentuk masa depan teknologi melalui penelitian, analisis, dan kolaborasi.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Eksplorasi</h3>
+                <ul>
+                    <li><a href="#ai">AI 2030</a></li>
+                    <li><a href="#iot">IoT 2030</a></li>
+                    <li><a href="#predictions">Prediksi</a></li>
+                    <li><a href="#experts">Pakar</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Sumber Daya</h3>
+                <ul>
+                    <li><a href="#">Laporan Riset</a></li>
+                    <li><a href="#">Whitepapers</a></li>
+                    <li><a href="#">Webinar</a></li>
+                    <li><a href="#">Glosarium</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Perusahaan</h3>
+                <ul>
+                    <li><a href="#">Tentang Kami</a></li>
+                    <li><a href="#">Tim</a></li>
+                    <li><a href="#">Karir</a></li>
+                    <li><a href="#">Kontak</a></li>
+                    <li><a href="#">Privasi</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 TechVision 2030. Semua hak dilindungi. Membayangkan masa depan, membentuk hari ini.</p>
+            <div class="footer-legal">
+                <a href="#">Syarat Layanan</a>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Peta Situs</a>
+            </div>
+        </div>
     </footer>
 
-    <script>
-        // ====== DATA PSIKOLOGI NYATA ======
-        const darkPatternsData = [
-            {
-                icon: "👁️",
-                title: "Eye Direction Bias",
-                desc: "Mengarahkan pandangan mata untuk mempengaruhi pilihan tanpa sadar"
-            },
-            {
-                icon: "🔄",
-                title: "Infinite Scrolling",
-                desc: "Desain yang sengaja dibuat tanpa titik akhir untuk mempertahankan engagement"
-            },
-            {
-                icon: "⏳",
-                title: "False Urgency",
-                desc: "Menciptakan rasa urgensi palsu untuk mempercepat keputusan"
-            }
-        ];
-        
-        const archiveData = [
-            {
-                title: "48 Hukum Kekuasaan",
-                desc: "Kumpulan prinsip manipulasi dan kekuasaan dari Robert Greene",
-                category: "Manipulasi",
-                pages: "320",
-                level: "Expert"
-            },
-            {
-                title: "Seni Gaslighting",
-                desc: "Teknik membuat korban meragukan ingatan dan persepsinya sendiri",
-                category: "Psikopat",
-                pages: "145",
-                level: "Advanced"
-            },
-            {
-                title: "Dark Persuasion",
-                desc: "Metode persuasi terselubung dalam komunikasi sehari-hari",
-                category: "Persuasi",
-                pages: "210",
-                level: "Intermediate"
-            },
-            {
-                title: "Pemrograman NLP",
-                desc: "Memanfaatkan neurolinguistik untuk kontrol pikiran",
-                category: "NLP",
-                pages: "180",
-                level: "Advanced"
-            },
-            {
-                title: "Psikologi Sosiopat",
-                desc: "Mengenali dan berinteraksi dengan sosiopat fungsional",
-                category: "Psikopat",
-                pages: "195",
-                level: "Expert"
-            },
-            {
-                title: "Mind Control 101",
-                desc: "Dasar-dasar teknik kontrol pikiran dalam skala kecil",
-                category: "Kontrol",
-                pages: "90",
-                level: "Beginner"
-            }
-        ];
-        
-        const dailyTomes = [
-            {
-                title: "Seni Manipulasi Modern",
-                desc: "Ebook hari ini membahas teknik-teknik manipulasi psikologis terkini yang digunakan dalam media sosial, politik, dan hubungan interpersonal.",
-                date: "27 Juli 2023"
-            },
-            {
-                title: "Gaslighting 2.0",
-                desc: "Perkembangan terbaru teknik gaslighting di era digital dan media sosial.",
-                date: "26 Juli 2023"
-            },
-            {
-                title: "Dark UI Patterns",
-                desc: "Bagaimana desain antarmuka dimanfaatkan untuk manipulasi psikologis pengguna.",
-                date: "25 Juli 2023"
-            },
-            {
-                title: "Neuro-Linguistic Warfare",
-                desc: "Penggunaan bahasa sebagai senjata psikologis dalam konflik modern.",
-                date: "24 Juli 2023"
-            }
-        ];
-        
-        // ====== FUNGSI UTAMA ======
-        function loadDarkPatterns() {
-            const container = document.getElementById('darkPatternsList');
-            
-            darkPatternsData.forEach(pattern => {
-                const patternEl = document.createElement('div');
-                patternEl.className = 'pattern-item';
-                patternEl.innerHTML = `
-                    <div class="pattern-icon">${pattern.icon}</div>
-                    <div class="pattern-content">
-                        <h4>${pattern.title}</h4>
-                        <p>${pattern.desc}</p>
-                    </div>
-                `;
-                container.appendChild(patternEl);
-            });
-        }
-        
-        function loadArchive() {
-            const container = document.getElementById('archiveGrid');
-            
-            archiveData.forEach(book => {
-                const bookEl = document.createElement('div');
-                bookEl.className = 'archive-card';
-                bookEl.innerHTML = `
-                    <div class="archive-category">${book.category}</div>
-                    <h3 class="archive-title">${book.title}</h3>
-                    <p class="archive-desc">${book.desc}</p>
-                    <div class="archive-meta">
-                        <span>📖 ${book.pages} halaman</span>
-                        <span>⚡ ${book.level}</span>
-                    </div>
-                `;
-                container.appendChild(bookEl);
-            });
-        }
-        
-        function updateDailyTome() {
-            const randomIndex = Math.floor(Math.random() * dailyTomes.length);
-            const tome = dailyTomes[randomIndex];
-            
-            document.getElementById('dailyTomeTitle').textContent = tome.title;
-            document.getElementById('dailyTomeDesc').textContent = tome.desc;
-            document.getElementById('dailyTomeDate').textContent = new Date().toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            
-            // Simulate AI thinking
-            document.getElementById('aiStatusText').textContent = "Neuro-AI sedang menganalisis pola terbaru...";
-            
-            setTimeout(() => {
-                document.getElementById('aiStatusText').textContent = "Pembaruan konten selesai. Versi baru akan tersedia besok.";
-            }, 3000);
-        }
-        
-        // ====== EVENT LISTENERS ======
-        document.getElementById('readBtn').addEventListener('click', () => {
-            alert("Membuka ebook: " + document.getElementById('dailyTomeTitle').textContent);
-        });
-        
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            alert("Mengunduh ebook dalam format PDF...");
-        });
-        
-        // ====== INISIALISASI ======
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDarkPatterns();
-            loadArchive();
-            updateDailyTome();
-            
-            // Auto-update every 24 hours (for demo)
-            setInterval(updateDailyTome, 24 * 60 * 60 * 1000);
-        });
-    </script>
+    <!-- Back to Top Button -->
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
