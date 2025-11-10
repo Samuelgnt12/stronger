@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymBro - Jadwal Latihan</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-image">
+            <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="loading-text">GymBro</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+    
+    <div class="main-content" id="mainContent">
+        <header>
+            <div class="container">
+                <div class="logo">
+                    <h1><i class="fas fa-dumbbell"></i> Gym<span>Bro</span></h1>
+                    <div class="user-stats">
+                        <div class="stat-badge">
+                            <i class="fas fa-calendar"></i>
+                            <span id="currentDay">Hari Ini</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="container">
+            <div class="hero-section">
+                <h2>Transformasi Tubuh Anda</h2>
+                <p>Jadwal latihan profesional dengan bantuan AI</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-header">
+                    <h2><i class="fas fa-robot"></i> AI Gym Assistant</h2>
+                    <div class="ai-status" id="aiStatus">
+                        <i class="fas fa-circle"></i> AI Active
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Tanya apa saja tentang gym, olahraga, nutrisi...">
+                    <button id="searchBtn">
+                        <i class="fas fa-search"></i> Tanya AI
+                    </button>
+                </div>
+                <div class="search-examples">
+                    <span>Contoh: </span>
+                    <button class="example-btn" data-query="cara squat yang benar">squat</button>
+                    <button class="example-btn" data-query="program latihan untuk pemula">program pemula</button>
+                    <button class="example-btn" data-query="makanan untuk muscle gain">nutrisi</button>
+                </div>
+            </div>
+            
+            <div class="search-results" id="searchResults">
+                <div class="results-placeholder">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>Tanya AI tentang gym, olahraga, atau tips fitness</p>
+                </div>
+            </div>
+            
+            <div class="schedule-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Jadwal Latihan Mingguan</h2>
+                    <div class="last-update" id="lastUpdate"></div>
+                </div>
+                
+                <div class="workout-days" id="workoutDays"></div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="container">
+                <p>&copy; 2023 GymBro - Powered by AI Technology</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
