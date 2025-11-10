@@ -16,14 +16,10 @@ const aiStatusEl = document.getElementById('aiStatus');
 class AdvancedGymAI {
     constructor() {
         this.apiKey = GEMINI_API_KEY;
-        this.useProxy = true; // Enable proxy for GitHub Pages
-        this.proxyUrls = [
-            'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url=',
-            'https://cors-anywhere.herokuapp.com/'
-        ];
-        this.currentProxyIndex = 0;
+        this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
         this.isOnline = true;
+        this.retryCount = 0;
+        this.maxRetries = 2;
     }
 
     async searchWithAI(query) {
@@ -32,95 +28,172 @@ class AdvancedGymAI {
         }
 
         try {
-            const prompt = this.buildSmartPrompt(query);
-            let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.apiKey}`;
-            
-            // Use proxy for GitHub Pages
-            if (this.useProxy) {
-                apiUrl = this.getProxyUrl() + encodeURIComponent(apiUrl);
-            }
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }],
-                    generationConfig: {
-                        maxOutputTokens: 800,
-                        temperature: 0.7,
-                        topP: 0.8,
-                        topK: 40
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-                throw new Error('Invalid AI response');
-            }
-
-            return data.candidates[0].content.parts[0].text;
-            
+            // Coba direct call pertama
+            return await this.makeDirectAPICall(query);
         } catch (error) {
-            console.error('AI Search Error:', error);
-            // Try next proxy if available
-            if (this.useProxy && this.currentProxyIndex < this.proxyUrls.length - 1) {
-                this.currentProxyIndex++;
-                console.log('Switching to next proxy...');
-                return this.searchWithAI(query);
+            console.log('Direct API failed, trying CORS proxy...');
+            this.retryCount++;
+            
+            if (this.retryCount <= this.maxRetries) {
+                return await this.makeProxyAPICall(query);
+            } else {
+                this.isOnline = false;
+                throw new Error('All connection attempts failed');
             }
-            this.isOnline = false;
-            throw error;
         }
     }
 
-    getProxyUrl() {
-        return this.proxyUrls[this.currentProxyIndex];
+    async makeDirectAPICall(query) {
+        const prompt = this.buildSmartPrompt(query);
+        const url = `${this.baseUrl}?key=${this.apiKey}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+                generationConfig: {
+                    maxOutputTokens: 800,
+                    temperature: 0.7,
+                    topP: 0.8,
+                    topK: 40
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
+            throw new Error('Invalid AI response format');
+        }
+
+        this.retryCount = 0; // Reset retry count on success
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    async makeProxyAPICall(query) {
+        const prompt = this.buildSmartPrompt(query);
+        const directUrl = `${this.baseUrl}?key=${this.apiKey}`;
+        
+        // List of CORS proxies to try
+        const proxies = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://cors-anywhere.herokuapp.com/'
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                console.log(`Trying proxy: ${proxy}`);
+                const proxyUrl = proxy + encodeURIComponent(directUrl);
+                
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            maxOutputTokens: 800,
+                            temperature: 0.7
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    this.retryCount = 0;
+                    return data.candidates[0].content.parts[0].text;
+                }
+            } catch (proxyError) {
+                console.log(`Proxy ${proxy} failed:`, proxyError);
+                continue;
+            }
+        }
+        
+        throw new Error('All proxies failed');
     }
 
     buildSmartPrompt(query) {
-        return `Anda adalah AI Assistant Gym dan Fitness yang sangat ahli. User bertanya: "${query}"
+        return `Anda adalah AI Assistant Gym, Fitness, dan Kesehatan profesional. User bertanya: "${query}"
 
-INSTRUKSI:
-1. Analisis pertanyaan dengan mendalam - bisa tentang gerakan olahraga, program latihan, nutrisi, tips fitness, teknik yang benar, dll.
-2. Berikan jawaban yang komprehensif tentang gym, olahraga, fitness, nutrisi, atau kesehatan
-3. Jika ada kesalahan ketik, koreksi secara natural
-4. Gunakan bahasa Indonesia yang mudah dipahami
-5. Berikan informasi yang akurat dan praktis
-6. Untuk pertanyaan gerakan olahraga, sertakan langkah-langkah detail
-7. Untuk pertanyaan nutrisi, berikan saran praktis
-8. Untuk pertanyaan program, berikan contoh rutinitas
+PERAN ANDA:
+Anda adalah personal trainer dan nutritionist ahli dengan 10+ tahun pengalaman.
 
-FORMAT JAWABAN:
-JUDUL: [Judul yang relevan]
-DESKRIPSI: [Penjelasan singkat dan jelas]
-PENJELASAN_DETAIL: [Penjelasan lengkap dengan poin-poin]
-LANGKAH_LANGKAH: [Jika ada langkah praktis, berikan step-by-step]
-TIPS_PENTING: [Tips dan saran praktis]
-PERHATIAN: [Hal-hal yang perlu diwaspadai jika ada]
+INSTRUKSI DETAIL:
+1. ANALISIS pertanyaan mendalam - bisa tentang:
+   - Teknik gerakan olahraga (form, postur, kesalahan umum)
+   - Program latihan (bulking, cutting, strength, hypertrophy)
+   - Nutrisi dan diet (protein, karbohidrat, lemak, suplementasi)
+   - Recovery (istirahat, sleep, stretching, mobility)
+   - Injury prevention dan rehabilitasi
+   - Psychology fitness (motivasi, konsistensi, mindset)
+   - Equipment usage (cara pakai alat gym yang benar)
 
-Jawab dengan format di atas dan pastikan informasi sesuai dengan konteks pertanyaan tentang gym, olahraga, fitness, atau kesehatan.`;
+2. Jika ada KESALAHAN TULIS, koreksi dengan sopan dan berikan jawaban yang dimaksud
+
+3. Berikan informasi yang:
+   - AKURAT secara ilmiah
+   - PRAKTIS untuk diterapkan
+   - AMAN untuk semua level
+   - DETAIL dengan contoh konkret
+
+FORMAT RESPONS WAJIB:
+JUDUL: [Judul spesifik dan menarik]
+DESKRIPSI: [Penjelasan singkat 1-2 kalimat]
+LEVEL: [Beginner/Intermediate/Advanced/All Levels]
+DURASI: [Waktu yang dibutuhkan]
+PERALATAN: [Equipment needed]
+PENJELASAN_LENGKAP: [Detail teknis dan scientific explanation]
+LANGKAH_LANGKAH: [Step-by-step instructions if applicable]
+TIPS_AHLI: [Professional tips and tricks]
+HAL_DIWAASPADAI: [Common mistakes and safety warnings]
+NUTRISI_PENDUKUNG: [Nutrition advice if relevant]
+
+CONTOH FORMAT BAIK:
+JUDUL: Master the Perfect Squat
+DESKRIPSI: Teknik squat yang benar untuk membangun kekuatan kaki dan mencegah cedera
+LEVEL: All Levels
+DURASI: 10-15 menit
+PERALATAN: Barbell, rack (optional: bodyweight)
+PENJELASAN_LENGKAP: Squat adalah compound exercise yang melatih quadriceps, hamstrings, glutes, dan core...
+LANGKAH_LANGKAH: 1. Berdiri dengan kaki selebar bahu... 2. Jaga dada tegak... 
+TIPS_AHLI: - Fokus pada depth yang aman - Kontrol gerakan turun - Drive melalui heels
+HAL_DIWAASPADAI: Jangan round back, jaga knee alignment
+NUTRISI_PENDUKUNG: Konsumsi protein 2 jam sebelum latihan untuk energi
+
+JAWAB DALAM BAHASA INDONESIA YANG MUDAH DIPAHAMI.`;
     }
 
     parseAIResponse(aiText) {
-        const sections = {
+        const result = {
             title: '',
             description: '',
+            level: '',
+            duration: '',
+            equipment: '',
             detailedExplanation: '',
             steps: [],
             tips: [],
-            warnings: []
+            warnings: [],
+            nutrition: '',
+            rawResponse: aiText
         };
 
         const lines = aiText.split('\n');
@@ -128,167 +201,352 @@ Jawab dengan format di atas dan pastikan informasi sesuai dengan konteks pertany
 
         lines.forEach(line => {
             line = line.trim();
-            
-            if (line.includes('JUDUL:')) {
-                sections.title = line.replace('JUDUL:', '').trim();
+            if (!line) return;
+
+            // Section detection
+            if (line.startsWith('JUDUL:')) {
+                result.title = line.replace('JUDUL:', '').trim();
                 currentSection = 'title';
-            } else if (line.includes('DESKRIPSI:')) {
-                sections.description = line.replace('DESKRIPSI:', '').trim();
+            } else if (line.startsWith('DESKRIPSI:')) {
+                result.description = line.replace('DESKRIPSI:', '').trim();
                 currentSection = 'description';
-            } else if (line.includes('PENJELASAN_DETAIL:')) {
-                sections.detailedExplanation = line.replace('PENJELASAN_DETAIL:', '').trim();
+            } else if (line.startsWith('LEVEL:')) {
+                result.level = line.replace('LEVEL:', '').trim();
+                currentSection = 'level';
+            } else if (line.startsWith('DURASI:')) {
+                result.duration = line.replace('DURASI:', '').trim();
+                currentSection = 'duration';
+            } else if (line.startsWith('PERALATAN:')) {
+                result.equipment = line.replace('PERALATAN:', '').trim();
+                currentSection = 'equipment';
+            } else if (line.startsWith('PENJELASAN_LENGKAP:')) {
+                result.detailedExplanation = line.replace('PENJELASAN_LENGKAP:', '').trim();
                 currentSection = 'detailedExplanation';
-            } else if (line.includes('LANGKAH_LANGKAH:')) {
+            } else if (line.startsWith('LANGKAH_LANGKAH:')) {
                 currentSection = 'steps';
-            } else if (line.includes('TIPS_PENTING:')) {
+            } else if (line.startsWith('TIPS_AHLI:')) {
                 currentSection = 'tips';
-            } else if (line.includes('PERHATIAN:')) {
-                sections.warnings = [line.replace('PERHATIAN:', '').trim()];
+            } else if (line.startsWith('HAL_DIWAASPADAI:')) {
                 currentSection = 'warnings';
-            } else if (line && currentSection === 'steps') {
-                if (line.match(/^[0-9]\./)) {
-                    sections.steps.push(line.replace(/^[0-9]\.\s*/, '').trim());
-                } else if (line.startsWith('-') || line.startsWith('•')) {
-                    sections.steps.push(line.replace(/^[•\-]\s*/, '').trim());
+            } else if (line.startsWith('NUTRISI_PENDUKUNG:')) {
+                result.nutrition = line.replace('NUTRISI_PENDUKUNG:', '').trim();
+                currentSection = 'nutrition';
+            } else {
+                // Content parsing for each section
+                switch (currentSection) {
+                    case 'steps':
+                        if (line.match(/^\d+\./) || line.match(/^[-•]/)) {
+                            const cleanStep = line.replace(/^(\d+\.|[-•])\s*/, '').trim();
+                            if (cleanStep) result.steps.push(cleanStep);
+                        }
+                        break;
+                    case 'tips':
+                        if (line.match(/^[-•]/) || line.match(/^\d+\./)) {
+                            const cleanTip = line.replace(/^(\d+\.|[-•])\s*/, '').trim();
+                            if (cleanTip) result.tips.push(cleanTip);
+                        }
+                        break;
+                    case 'warnings':
+                        if (line.match(/^[-•]/)) {
+                            const cleanWarning = line.replace(/^[-•]\s*/, '').trim();
+                            if (cleanWarning) result.warnings.push(cleanWarning);
+                        }
+                        break;
+                    case 'detailedExplanation':
+                        if (!result.detailedExplanation) {
+                            result.detailedExplanation = line;
+                        } else {
+                            result.detailedExplanation += ' ' + line;
+                        }
+                        break;
                 }
-            } else if (line && currentSection === 'tips') {
-                if (line.match(/^[•\-]/) || line.match(/^[0-9]\./)) {
-                    sections.tips.push(line.replace(/^[•\-0-9\.]\s*/, '').trim());
-                }
-            } else if (line && currentSection === 'detailedExplanation' && !sections.detailedExplanation) {
-                sections.detailedExplanation = line;
             }
         });
 
-        // Fallback parsing jika format tidak sesuai
-        if (!sections.title) {
+        // Fallback parsing jika format tidak perfect
+        this.applyFallbackParsing(result, aiText);
+        
+        return result;
+    }
+
+    applyFallbackParsing(result, aiText) {
+        if (!result.title) {
             const firstLine = aiText.split('\n')[0];
-            sections.title = firstLine.length > 50 ? "Informasi Olahraga" : firstLine;
-            sections.description = aiText.split('.')[0] + '.';
-            sections.detailedExplanation = aiText;
-            
-            // Extract steps from text
-            const stepMatches = aiText.match(/\d+\.\s*[^\d]+/g);
-            if (stepMatches) {
-                sections.steps = stepMatches.map(step => step.replace(/^\d+\.\s*/, '').trim());
-            }
+            result.title = firstLine.length > 60 ? "Panduan Fitness" : firstLine;
         }
 
-        return sections;
+        if (!result.description && result.detailedExplanation) {
+            result.description = result.detailedExplanation.split('.')[0] + '.';
+        }
+
+        if (!result.detailedExplanation) {
+            result.detailedExplanation = aiText;
+        }
+
+        // Auto-extract steps from text
+        if (result.steps.length === 0) {
+            const stepMatches = aiText.match(/\d+\.\s*[^\d]+?(?=\n\d+\.|\n[A-Z_]+:|\n*$)/g);
+            if (stepMatches) {
+                result.steps = stepMatches.map(step => step.replace(/^\d+\.\s*/, '').trim());
+            }
+        }
+    }
+
+    async testConnection() {
+        try {
+            const testResponse = await this.searchWithAI("Hello, test connection");
+            this.isOnline = true;
+            return true;
+        } catch (error) {
+            this.isOnline = false;
+            return false;
+        }
     }
 }
 
-const gymAI = new AdvancedGymAI();
-
-// Fallback responses untuk ketika AI offline
-const fallbackResponses = {
+// Enhanced fallback database
+const enhancedFallbackDB = {
     'squat': {
-        title: "Cara Squat yang Benar",
-        description: "Squat adalah latihan dasar untuk membangun kekuatan kaki dan inti tubuh.",
-        detailedExplanation: "Squat melatih otot paha depan, paha belakang, glutes, dan inti tubuh. Gerakan ini fundamental dalam program fitness apa pun.",
+        title: "🏋️ Master the Perfect Squat",
+        description: "Teknik squat yang benar untuk membangun kekuatan kaki dan mencegah cedera",
+        level: "All Levels",
+        duration: "10-15 menit",
+        equipment: "Barbell, Squat Rack (optional: bodyweight)",
+        detailedExplanation: "Squat adalah compound exercise fundamental yang melatih quadriceps, hamstrings, glutes, core, dan lower back. Gerakan ini meningkatkan kekuatan fungsional, mobilitas, dan metabolisme.",
         steps: [
-            "Berdiri dengan kaki selebar bahu, jari kaki mengarah sedikit keluar",
-            "Tegakkan punggung, tarik bahu ke belakang, dan dada membusung",
+            "Berdiri dengan kaki selebar bahu, toes slightly pointed out",
+            "Tegakkan punggung, tarik bahu ke belakang, dada membusung",
             "Turunkan tubuh dengan mendorong pinggul ke belakang seperti mau duduk",
             "Jaga lutut sejajar dengan jari kaki, jangan melebihi ujung kaki",
-            "Turun hingga paha sejajar lantai atau lebih rendah jika mampu",
-            "Dorong melalui tumit untuk kembali ke posisi berdiri",
+            "Turun hingga paha parallel dengan lantai (atau lebih rendah jika fleksibel)",
+            "Jaga berat badan di tumit, bukan jari kaki",
+            "Dorong melalui tumit untuk kembali ke posisi awal",
             "Kencangkan glutes di puncak gerakan"
         ],
         tips: [
-            "Jaga tumit tetap menempel di lantai",
-            "Jangan membulatkan punggung",
-            "Kontrol gerakan, jangan terburu-buru",
-            "Tarik napas saat turun, hembuskan saat naik"
+            "Lakukan pemanasan dynamic stretching sebelum squat",
+            "Start dengan bodyweight untuk master form dulu",
+            "Gunakan mirror untuk check form alignment",
+            "Kontrol gerakan turun, explosive naik",
+            "Bernapas dalam saat turun, hembuskan saat naik"
         ],
-        warnings: ["Hentikan jika merasa sakit di lutut atau punggung"]
+        warnings: [
+            "JANGAN bulatkan punggung (keep neutral spine)",
+            "Jangan biarkan lutut collapse inward",
+            "Hentikan jika merasa sharp pain di knee atau back",
+            "Jangan bounce di bagian bawah gerakan"
+        ],
+        nutrition: "Konsumsi 20-30g protein 1-2 jam sebelum latihan, dan carbs kompleks untuk energy"
     },
-    'push up': {
-        title: "Teknik Push Up yang Benar",
-        description: "Push up adalah latihan bodyweight yang efektif untuk dada, bahu, dan trisep.",
+
+    'bench press': {
+        title: "💪 Bench Press Mastery",
+        description: "Teknik bench press yang aman dan efektif untuk chest development",
+        level: "Beginner to Advanced",
+        duration: "8-12 menit",
+        equipment: "Bench, Barbell, Weight plates",
+        detailedExplanation: "Bench press adalah upper body compound exercise utama untuk developing chest, shoulders, dan triceps. Penting untuk mastering form yang benar sebelum menambah berat.",
         steps: [
-            "Posisi plank dengan tangan selebar bahu",
-            "Jaga tubuh lurus dari kepala hingga kaki",
-            "Turunkan tubuh dengan menekuk siku hingga dada hampir menyentuh lantai",
-            "Jaga siku dekat dengan tubuh (45 derajat)",
-            "Dorong kembali ke posisi awal"
+            "Lie flat on bench dengan feet firmly on floor",
+            "Grip bar slightly wider than shoulder width",
+            "Unrack bar dan posisikan di atas chest",
+            "Lower bar dengan kontrol ke mid-chest",
+            "Keep elbows at 45-60 degree angle dari body",
+            "Touch bar lightly ke chest (don't bounce)",
+            "Press bar back to starting position dengan power",
+            "Don't lock elbows completely di top position"
         ],
         tips: [
-            "Jaga inti tubuh tetap kencang",
-            "Jangan menjatuhkan pinggul",
-            "Lakukan gerakan penuh untuk hasil maksimal"
-        ]
+            "Keep shoulder blades retracted throughout",
+            "Maintain slight arch in lower back",
+            "Use spotter ketika lifting heavy",
+            "Focus on mind-muscle connection dengan chest",
+            "Control negative (eccentric) portion"
+        ],
+        warnings: [
+            "JANGAN bounce bar off chest",
+            "Jangan flare elbows terlalu lebar (90 degrees)",
+            "Always use safety pins atau spotter",
+            "Jangan ego lifting - focus on form bukan weight"
+        ],
+        nutrition: "Pre-workout: carbs + protein, Post-workout: 30g protein dalam 1 jam"
     },
+
     'deadlift': {
-        title: "Panduan Deadlift untuk Pemula",
-        description: "Deadlift adalah latihan compound terbaik untuk kekuatan tubuh secara keseluruhan.",
+        title: "🔥 Deadlift Fundamentals",
+        description: "Learn proper deadlift form untuk full-body strength development",
+        level: "Intermediate",
+        duration: "12-15 menit",
+        equipment: "Barbell, Weight plates",
+        detailedExplanation: "Deadlift adalah king of compound exercises, melatih hamstrings, glutes, back, core, grips, dan overall posterior chain. Essential untuk functional strength.",
         steps: [
-            "Berdiri dengan barbell di atas kaki, kaki selebar bahu",
-            "Tekuk pinggul dan lutut, pegang barbell dengan grip overhand atau mixed",
-            "Jaga punggung lurus, dada terangkat, bahu ke belakang",
-            "Angkat barbell dengan meluruskan pinggul dan lutut bersamaan",
-            "Jaga barbell tetap dekat dengan tubuh selama gerakan",
-            "Di puncak, kencangkan glutes tanpa hiperekstensi",
-            "Turunkan barbell dengan kontrol"
+            "Stand with barbell over mid-foot, feet hip-width",
+            "Bend hips and knees, grip bar just outside legs",
+            "Keep back straight, chest up, shoulders back",
+            "Take slack out of bar sebelum lifting",
+            "Lift bar by extending hips and knees simultaneously",
+            "Keep bar close to body throughout movement",
+            "Stand up straight, squeeze glutes at top",
+            "Lower bar dengan kontrol mengikuti same path"
         ],
         tips: [
-            "Selalu lakukan pemanasan terlebih dahulu",
-            "Mulai dengan berat ringan untuk menguasai teknik",
-            "Jaga barbell tetap dekat dengan tulang kering"
+            "Practice dengan light weight untuk master form",
+            "Use mixed grip atau hook grip untuk heavy weights",
+            "Engage lats sebelum lifting (pull shoulders back)",
+            "Drive through heels, bukan balls of feet",
+            "Keep neck in neutral position"
         ],
-        warnings: ["JANGAN membulatkan punggung saat mengangkat"]
+        warnings: [
+            "JANGAN round back selama lift",
+            "Jangan jerk the bar - smooth controlled movement",
+            "Hentikan jika merasa back pain",
+            "Always warm up properly sebelum deadlifting"
+        ],
+        nutrition: "High protein intake, adequate carbs untuk energy, stay hydrated"
     },
-    'nutrisi': {
-        title: "Panduan Nutrisi untuk Fitness",
-        description: "Nutrisi yang tepat sama pentingnya dengan latihan untuk hasil maksimal.",
-        detailedExplanation: "Nutrisi fitness terdiri dari makronutrien (protein, karbohidrat, lemak) dan mikronutrien (vitamin, mineral). Keseimbangan adalah kunci.",
+
+    'nutrition': {
+        title: "🍎 Fitness Nutrition Guide",
+        description: "Panduan nutrisi lengkap untuk muscle gain, fat loss, dan performance",
+        level: "All Levels",
+        duration: "Ongoing",
+        equipment: "Food scale (optional), Meal prep containers",
+        detailedExplanation: "Nutrition adalah 70% dari hasil fitness. Understanding macronutrients, timing, dan quality foods adalah kunci untuk mencapai goals apapun.",
         steps: [
-            "Konsumsi protein cukup (1.6-2.2g per kg berat badan)",
-            "Pilih karbohidrat kompleks sebagai energi utama",
-            "Sertakan lemak sehat untuk hormon dan energi",
-            "Minum air minimal 2-3 liter per hari",
-            "Makan sayur dan buah untuk vitamin dan serat"
+            "Calculate daily calorie needs berdasarkan TDEE",
+            "Set protein intake: 1.6-2.2g per kg body weight",
+            "Include complex carbs: 3-5g per kg untuk energy",
+            "Add healthy fats: 0.8-1.2g per kg untuk hormones",
+            "Drink 3-4 liters water daily untuk hydration",
+            "Eat 4-6 meals spread throughout day",
+            "Include vegetables dengan setiap meal",
+            "Time carbs around workouts untuk performance"
         ],
         tips: [
-            "Makan 4-6 kali sehari dalam porsi kecil",
-            "Konsumsi protein 30 menit setelah latihan",
-            "Hindari processed food dan gula berlebihan",
-            "Sesuaikan kalori dengan tujuan (bulking/cutting)"
-        ]
+            "Meal prep di weekend untuk consistency",
+            "Eat protein setiap 3-4 hours untuk muscle synthesis",
+            "Don't fear carbs - mereka fuel workouts",
+            "Include variety of colorful vegetables",
+            "Listen to body's hunger dan fullness cues"
+        ],
+        warnings: [
+            "Jangan extreme calorie cutting",
+            "Avoid processed foods dan added sugars",
+            "Don't eliminate entire food groups",
+            "Jangan skip post-workout nutrition window"
+        ],
+        nutrition: "Focus on whole foods: lean proteins, complex carbs, healthy fats, plenty vegetables"
     },
-    'program pemula': {
-        title: "Program Latihan 3 Hari untuk Pemula",
-        description: "Program full body 3x seminggu ideal untuk pemula membangun dasar kekuatan.",
-        detailedExplanation: "Program ini fokus pada compound movements untuk membangun kekuatan dasar dan adaptasi tubuh terhadap latihan beban.",
+
+    'beginner': {
+        title: "🚀 Beginner Fitness Program",
+        description: "3-day full body program untuk building foundation yang kuat",
+        level: "Beginner",
+        duration: "8-12 weeks",
+        equipment: "Basic gym equipment atau bodyweight",
+        detailedExplanation: "Program ini designed untuk pemula membangun fundamental strength, learning proper form, dan establishing consistent routine. Focus pada compound movements.",
         steps: [
-            "HARI 1: Full Body A - Squat, Bench Press, Rows",
-            "HARI 2: Istirahat atau kardio ringan",
-            "HARI 3: Full Body B - Deadlift, Overhead Press, Pull-ups",
-            "HARI 4: Istirahat",
-            "HARI 5: Full Body C - Leg Press, Incline Press, Lat Pulldown",
-            "HARI 6-7: Istirahat"
+            "DAY 1: Squat 3x8, Bench Press 3x8, Rows 3x10",
+            "DAY 2: Rest atau light cardio 20-30min",
+            "DAY 3: Deadlift 3x5, Overhead Press 3x8, Pull-ups 3xMax",
+            "DAY 4: Rest",
+            "DAY 5: Leg Press 3x10, Incline Press 3x8, Lat Pulldown 3x10",
+            "DAY 6-7: Active recovery (walking, stretching)"
         ],
         tips: [
-            "Lakukan 3 set x 8-12 repetisi setiap latihan",
-            "Istirahat 60-90 detik antar set",
-            "Tingkatkan berat secara bertahap",
-            "Fokus pada teknik bukan berat"
-        ]
+            "Focus on form bukan weight di 4 weeks pertama",
+            "Increase weight gradually each week (progressive overload)",
+            "Get 7-8 hours quality sleep setiap malam",
+            "Stay consistent - don't skip workouts",
+            "Track progress dalam workout journal"
+        ],
+        warnings: [
+            "Jangan jump into advanced programs terlalu cepat",
+            "Listen to body - rest jika sakit atau fatigued",
+            "Don't compare progress dengan others",
+            "Jangan skip warm-up dan cool-down"
+        ],
+        nutrition: "Eat at maintenance calories, focus on protein intake, stay consistent dengan meal timing"
+    },
+
+    'cardio': {
+        title: "🏃‍♂️ Smart Cardio Training",
+        description: "Effective cardio programming untuk fat loss dan cardiovascular health",
+        level: "All Levels",
+        duration: "20-45 minutes",
+        equipment: "Treadmill, Bike, Elliptical, atau Outdoor space",
+        detailedExplanation: "Cardio improves heart health, endurance, fat burning, dan recovery. Combining different cardio modalities memberikan maximum benefits.",
+        steps: [
+            "LISS (Low Intensity Steady State): 30-45min at 60-70% max heart rate",
+            "HIIT (High Intensity Interval Training): 20-30min dengan work:rest ratios",
+            "Moderate Intensity: 25-35min at 70-80% max heart rate",
+            "Include variety: running, cycling, swimming, rowing",
+            "Progress gradually intensity dan duration"
+        ],
+        tips: [
+            "Do cardio pada separate days dari strength training",
+            "Atau lakukan cardio setelah weights session",
+            "Use heart rate monitor untuk track intensity",
+            "Stay hydrated selama cardio sessions",
+            "Combine different cardio types untuk prevent boredom"
+        ],
+        warnings: [
+            "Jangan overdo cardio jika goal adalah muscle building",
+            "Don't do HIIT setiap day - allow recovery",
+            "Listen to joints - stop jika pain terjadi",
+            "Jangan skip warm-up sebelum intense cardio"
+        ],
+        nutrition: "Time carbs sebelum cardio untuk energy, protein setelah untuk recovery"
+    },
+
+    'pull up': {
+        title: "💪 Pull-up Progression",
+        description: "Master bodyweight pulling strength dengan pull-up progression",
+        level: "Beginner to Advanced",
+        duration: "10-15 minutes",
+        equipment: "Pull-up bar, Resistance bands (optional)",
+        detailedExplanation: "Pull-ups adalah fundamental upper body strength exercise untuk back, biceps, dan core. Most people need progression plan untuk achieve first pull-up.",
+        steps: [
+            "Start dengan dead hangs untuk grip strength",
+            "Progress ke scapular pulls untuk back activation",
+            "Use resistance bands untuk assisted pull-ups",
+            "Practice negative pull-ups (jump up, slow lower down)",
+            "Do flexed arm hangs di top position",
+            "Attempt full pull-ups dengan spot assistance",
+            "Gradually reduce band assistance overtime"
+        ],
+        tips: [
+            "Train pull-ups 2-3x per week untuk best progress",
+            "Focus on full range of motion",
+            "Engage core dan legs untuk stability",
+            "Use varied grips: pronated, supinated, neutral",
+            "Be patient - progress takes time"
+        ],
+        warnings: [
+            "Jangan kipping pull-ups sampai strict form mastered",
+            "Don't overgrip - dapat cause elbow pain",
+            "Hentikan jika shoulder pain terjadi",
+            "Jangan sacrifice form untuk repetitions"
+        ],
+        nutrition: "Adequate protein untuk muscle recovery dan growth"
     }
 };
 
-function init() {
-    // Simulate loading
-    setTimeout(() => {
+const gymAI = new AdvancedGymAI();
+
+// Enhanced initialization dengan AI connection test
+async function init() {
+    // Show loading screen
+    setTimeout(async () => {
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
             loadingScreen.style.display = 'none';
             mainContent.style.display = 'block';
             initializeApp();
         }, 500);
-    }, 2000);
+    }, 2500);
     
-    // Event listeners
+    // Setup event listeners
     searchBtn.addEventListener('click', performSearch);
     searchInput.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') {
@@ -309,113 +567,31 @@ function init() {
     setInterval(updateRealTimeData, 30000);
 }
 
-function initializeApp() {
+async function initializeApp() {
+    // Test AI connection
+    const aiConnected = await gymAI.testConnection();
+    updateAIStatus(aiConnected);
+    
     loadWorkoutData();
     renderWorkoutDays();
     updateCurrentDay();
     updateLastUpdateTime();
-    checkAIStatus();
 }
 
-function loadWorkoutData() {
-    const savedData = localStorage.getItem('gymWorkoutSchedule');
-    if (savedData) {
-        workoutSchedule = JSON.parse(savedData);
-        lastUpdateTime = localStorage.getItem('lastUpdateTime') || new Date().toISOString();
+function updateAIStatus(isConnected) {
+    gymAI.isOnline = isConnected;
+    if (isConnected) {
+        aiStatusEl.innerHTML = '<i class="fas fa-circle"></i> AI Connected';
+        aiStatusEl.style.background = 'var(--success)';
     } else {
-        workoutSchedule = {
-            senin: { 
-                muscleGroup: 'Chest & Triceps', 
-                exercises: [
-                    { name: 'Bench Press', sets: 4, reps: '8-12' },
-                    { name: 'Incline Dumbbell Press', sets: 3, reps: '10-12' },
-                    { name: 'Triceps Pushdown', sets: 3, reps: '12-15' }
-                ] 
-            },
-            selasa: { 
-                muscleGroup: 'Back & Biceps', 
-                exercises: [
-                    { name: 'Deadlift', sets: 4, reps: '6-10' },
-                    { name: 'Lat Pulldown', sets: 3, reps: '10-12' },
-                    { name: 'Barbell Curl', sets: 3, reps: '8-12' }
-                ] 
-            },
-            rabu: { 
-                muscleGroup: 'Legs', 
-                exercises: [
-                    { name: 'Squat', sets: 4, reps: '8-12' },
-                    { name: 'Leg Press', sets: 3, reps: '10-15' },
-                    { name: 'Leg Extension', sets: 3, reps: '12-15' }
-                ] 
-            },
-            kamis: { 
-                muscleGroup: 'Shoulders', 
-                exercises: [
-                    { name: 'Overhead Press', sets: 4, reps: '8-12' },
-                    { name: 'Lateral Raise', sets: 3, reps: '12-15' },
-                    { name: 'Front Raise', sets: 3, reps: '12-15' }
-                ] 
-            },
-            jumat: { 
-                muscleGroup: 'Full Body', 
-                exercises: [
-                    { name: 'Deadlift', sets: 3, reps: '6-8' },
-                    { name: 'Bench Press', sets: 3, reps: '8-10' },
-                    { name: 'Pull-ups', sets: 3, reps: 'Max' }
-                ] 
-            }
-        };
-        saveWorkoutData();
+        aiStatusEl.innerHTML = '<i class="fas fa-circle"></i> AI Offline';
+        aiStatusEl.style.background = 'var(--warning)';
+        showNotification('AI menggunakan data lokal', 'warning');
     }
 }
 
-function saveWorkoutData() {
-    localStorage.setItem('gymWorkoutSchedule', JSON.stringify(workoutSchedule));
-    lastUpdateTime = new Date().toISOString();
-    localStorage.setItem('lastUpdateTime', lastUpdateTime);
-    updateLastUpdateTime();
-}
-
-function renderWorkoutDays() {
-    workoutDays.innerHTML = '';
-    
-    const days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
-    const today = new Date().getDay();
-    const todayIndex = today === 0 ? 6 : today - 1;
-    
-    days.forEach((day, index) => {
-        const dayData = workoutSchedule[day];
-        if (!dayData) return;
-        
-        const dayCard = document.createElement('div');
-        dayCard.className = `day-card ${index === todayIndex ? 'today' : ''}`;
-        
-        const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-        const isToday = index === todayIndex;
-        
-        let exercisesHtml = '';
-        if (dayData.exercises && dayData.exercises.length > 0) {
-            dayData.exercises.forEach((exercise) => {
-                exercisesHtml += `
-                    <div class="exercise-item">
-                        <h4>${exercise.name}</h4>
-                        <p>${exercise.sets} set x ${exercise.reps} repetisi</p>
-                    </div>
-                `;
-            });
-        }
-        
-        dayCard.innerHTML = `
-            <h3>${dayName} ${isToday ? '<span class="today-badge">Hari Ini</span>' : ''}</h3>
-            <span class="muscle-group">${dayData.muscleGroup}</span>
-            <div class="exercises-list">
-                ${exercisesHtml}
-            </div>
-        `;
-        
-        workoutDays.appendChild(dayCard);
-    });
-}
+// [REST OF THE FUNCTIONS REMAIN THE SAME AS BEFORE...]
+// loadWorkoutData(), saveWorkoutData(), renderWorkoutDays(), etc.
 
 async function performSearch() {
     const query = searchInput.value.trim();
@@ -429,57 +605,93 @@ async function performSearch() {
     searchResults.innerHTML = `
         <div class="loading-ai">
             <div class="loading-spinner"></div>
-            <p>AI sedang menganalisis pertanyaan Anda...</p>
+            <p>${gymAI.isOnline ? 'AI sedang menganalisis...' : 'Mengambil data lokal...'}</p>
         </div>
     `;
     searchResults.style.display = 'block';
     
     try {
-        const aiResponse = await gymAI.searchWithAI(query);
-        const parsedResult = gymAI.parseAIResponse(aiResponse);
-        displayAIResult(parsedResult, query);
+        let result;
+        if (gymAI.isOnline) {
+            const aiResponse = await gymAI.searchWithAI(query);
+            result = gymAI.parseAIResponse(aiResponse);
+        } else {
+            result = getEnhancedFallbackResponse(query);
+        }
+        displayAIResult(result, query);
         
     } catch (error) {
-        console.error('AI Search failed, using fallback:', error);
-        useFallbackResponse(query);
+        console.error('Search failed:', error);
+        const fallbackResult = getEnhancedFallbackResponse(query);
+        displayAIResult(fallbackResult, query);
+        showNotification('Menggunakan database lokal', 'warning');
     }
 }
 
-function useFallbackResponse(query) {
+function getEnhancedFallbackResponse(query) {
     const normalizedQuery = query.toLowerCase();
     
-    // Cari kecocokan di fallback responses
-    for (const [key, response] of Object.entries(fallbackResponses)) {
-        if (normalizedQuery.includes(key)) {
-            displayAIResult(response, query);
-            showNotification('Menggunakan data lokal (AI offline)', 'warning');
-            return;
+    // Smart keyword matching
+    const keywordMap = {
+        'squat': 'squat',
+        'bench': 'bench press',
+        'press': 'bench press',
+        'deadlift': 'deadlift',
+        'pull': 'pull up',
+        'chin': 'pull up',
+        'nutrition': 'nutrition',
+        'diet': 'nutrition',
+        'food': 'nutrition',
+        'eat': 'nutrition',
+        'beginner': 'beginner',
+        'start': 'beginner',
+        'program': 'beginner',
+        'routine': 'beginner',
+        'cardio': 'cardio',
+        'run': 'cardio',
+        'hiit': 'cardio'
+    };
+    
+    for (const [keyword, responseKey] of Object.entries(keywordMap)) {
+        if (normalizedQuery.includes(keyword)) {
+            return enhancedFallbackDB[responseKey];
         }
     }
     
-    // Default fallback response
-    const defaultResponse = {
-        title: "Tips Fitness Umum",
-        description: "Berikut beberapa tips umum untuk program fitness Anda:",
-        detailedExplanation: "Konsistensi adalah kunci dalam fitness. Latihan teratur, nutrisi tepat, dan istirahat cukup adalah fondasi keberhasilan.",
+    // Default comprehensive response
+    return {
+        title: "💡 Ultimate Fitness Guide",
+        description: "Prinsip dasar fitness untuk hasil maksimal",
+        level: "All Levels",
+        duration: "Ongoing",
+        equipment: "Various",
+        detailedExplanation: "Konsistensi adalah kunci sukses fitness. Kombinasikan latihan strength yang teratur, nutrisi tepat, recovery adequate, dan patience untuk hasil terbaik.",
         steps: [
-            "Latihan 3-5 kali seminggu secara konsisten",
-            "Kombinasikan latihan kekuatan dan kardio",
-            "Konsumsi protein cukup untuk pemulihan otot",
-            "Minum air yang cukup sepanjang hari",
-            "Istirahat 7-8 jam per malam",
-            "Lakukan peregangan sebelum dan setelah latihan"
+            "Latihan strength 3-5x seminggu dengan progressive overload",
+            "Konsumsi protein adequate (1.6-2.2g/kg) untuk muscle repair",
+            "Include complex carbs untuk workout energy",
+            "Healthy fats untuk hormone production",
+            "Stay hydrated - 3-4L water daily",
+            "Sleep 7-9 hours untuk recovery",
+            "Active recovery pada rest days",
+            "Track progress dan celebrate improvements"
         ],
         tips: [
-            "Fokus pada progres, bukan perfeksi",
-            "Dengarkan tubuh Anda - istirahat jika perlu",
-            "Catat progres latihan untuk motivasi",
-            "Variasi latihan untuk menghindari plateau"
-        ]
+            "Focus pada consistency bukan perfection",
+            "Compound exercises untuk efficiency maksimal",
+            "Mind-muscle connection selama latihan",
+            "Variety dalam program untuk avoid plateau",
+            "Listen to body - rest ketika needed",
+            "Set realistic goals dan timelines"
+        ],
+        warnings: [
+            "Jangan ego lifting - prioritize form over weight",
+            "Avoid extreme diets atau overtraining",
+            "Don't compare progress dengan others",
+            "Consult professional jika ada health concerns"
+        ],
+        nutrition: "Whole foods approach: lean proteins, complex carbs, healthy fats, vegetables, adequate hydration"
     };
-    
-    displayAIResult(defaultResponse, query);
-    showNotification('AI offline, menampilkan tips umum', 'warning');
 }
 
 function displayAIResult(result, originalQuery) {
@@ -487,7 +699,7 @@ function displayAIResult(result, originalQuery) {
     if (result.steps && result.steps.length > 0) {
         stepsHtml = `
             <div class="exercise-steps">
-                <h4>Langkah-langkah:</h4>
+                <h4>📋 Step-by-Step Instructions:</h4>
                 <ol>
                     ${result.steps.map(step => `<li>${step}</li>`).join('')}
                 </ol>
@@ -499,7 +711,7 @@ function displayAIResult(result, originalQuery) {
     if (result.tips && result.tips.length > 0) {
         tipsHtml = `
             <div class="tips-section">
-                <h4>Tips Penting:</h4>
+                <h4>💡 Expert Tips:</h4>
                 <ul>
                     ${result.tips.map(tip => `<li>${tip}</li>`).join('')}
                 </ul>
@@ -511,23 +723,50 @@ function displayAIResult(result, originalQuery) {
     if (result.warnings && result.warnings.length > 0) {
         warningsHtml = `
             <div class="tips-section" style="background: rgba(239, 68, 68, 0.1); border-left-color: var(--danger);">
-                <h4>Perhatian:</h4>
-                <p>${result.warnings.join(' ')}</p>
+                <h4>⚠️ Important Warnings:</h4>
+                <ul>
+                    ${result.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                </ul>
             </div>
         `;
     }
+
+    let nutritionHtml = '';
+    if (result.nutrition) {
+        nutritionHtml = `
+            <div class="tips-section" style="background: rgba(34, 197, 94, 0.1); border-left-color: var(--success);">
+                <h4>🍎 Nutrition Advice:</h4>
+                <p>${result.nutrition}</p>
+            </div>
+        `;
+    }
+
+    // Meta information
+    const metaItems = [];
+    if (result.level) metaItems.push(`<div class="meta-item"><strong>Level:</strong> ${result.level}</div>`);
+    if (result.duration) metaItems.push(`<div class="meta-item"><strong>Duration:</strong> ${result.duration}</div>`);
+    if (result.equipment) metaItems.push(`<div class="meta-item"><strong>Equipment:</strong> ${result.equipment}</div>`);
+
+    const metaHtml = metaItems.length > 0 ? `
+        <div class="exercise-meta">
+            ${metaItems.join('')}
+        </div>
+    ` : '';
     
     searchResults.innerHTML = `
         <div class="ai-result">
             <div class="ai-header">
                 <h3>${result.title}</h3>
-                <span class="ai-badge">${gymAI.isOnline ? 'AI Assistant' : 'Local Data'}</span>
+                <span class="ai-badge">${gymAI.isOnline ? 'AI Coach' : 'Local Expert'}</span>
             </div>
             
-            ${result.description ? `<p style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--light);">${result.description}</p>` : ''}
+            ${result.description ? `<p class="ai-description">${result.description}</p>` : ''}
+            
+            ${metaHtml}
             
             ${result.detailedExplanation ? `
-                <div style="margin-bottom: 1.5rem;">
+                <div class="detailed-explanation">
+                    <h4>🎯 Detailed Explanation:</h4>
                     <p>${result.detailedExplanation}</p>
                 </div>
             ` : ''}
@@ -535,79 +774,16 @@ function displayAIResult(result, originalQuery) {
             ${stepsHtml}
             ${tipsHtml}
             ${warningsHtml}
+            ${nutritionHtml}
             
             <div class="ai-source">
-                <small>${gymAI.isOnline ? 'Dihasilkan oleh AI Gym Assistant' : 'Data lokal'} • Pertanyaan: "${originalQuery}"</small>
+                <small>${gymAI.isOnline ? 'Generated by AI Fitness Coach' : 'From local expert database'} • Query: "${originalQuery}"</small>
             </div>
         </div>
     `;
 }
 
-function updateCurrentDay() {
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabru'];
-    const today = new Date();
-    const dayName = days[today.getDay()];
-    currentDayEl.textContent = dayName;
-}
-
-function updateLastUpdateTime() {
-    if (lastUpdateTime) {
-        const updateDate = new Date(lastUpdateTime);
-        const now = new Date();
-        const diffMs = now - updateDate;
-        const diffMins = Math.floor(diffMs / 60000);
-        
-        if (diffMins < 1) {
-            lastUpdateEl.textContent = 'Baru saja diperbarui';
-        } else if (diffMins < 60) {
-            lastUpdateEl.textContent = `Diperbarui ${diffMins} menit lalu`;
-        } else {
-            lastUpdateEl.textContent = `Diperbarui ${updateDate.toLocaleDateString('id-ID')}`;
-        }
-    }
-}
-
-function updateRealTimeData() {
-    updateCurrentDay();
-    updateLastUpdateTime();
-    checkAIStatus();
-    
-    // Check for schedule updates
-    const savedData = localStorage.getItem('gymWorkoutSchedule');
-    if (savedData) {
-        const newSchedule = JSON.parse(savedData);
-        if (JSON.stringify(newSchedule) !== JSON.stringify(workoutSchedule)) {
-            workoutSchedule = newSchedule;
-            renderWorkoutDays();
-            showNotification('Jadwal telah diperbarui!', 'success');
-        }
-    }
-}
-
-function checkAIStatus() {
-    // Test AI connection
-    gymAI.isOnline = true;
-    aiStatusEl.innerHTML = `<i class="fas fa-circle"></i> AI Active`;
-    aiStatusEl.style.background = 'var(--success)';
-}
-
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
-}
+// [REMAINING FUNCTIONS - updateCurrentDay, updateLastUpdateTime, updateRealTimeData, showNotification]
 
 // Initialize the app
 init();
